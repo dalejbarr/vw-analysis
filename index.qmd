@@ -6,6 +6,8 @@ Weighall, A. R., Henderson, L. M., Barr, D. J., Cairney, S. A., & Gaskell, M. G.
 
 ## Raw data
 
-![](img/database/data-raw.png){#fig-weighall}
+You will need to download and extract [data-raw.zip](https://osf.io/download/zrcn7/) into your working directory.
 
-Figure @fig-weighall shows the data.
+The data has the structure below.
+
+![](img/database/data-raw.png){#fig-weighall}
