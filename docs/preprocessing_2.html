@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.1.251">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Analysing Visual-World Eyetracking Data Reproducibly - 2&nbsp; Mapping gaze to areas of interest</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./plotting.html" rel="next">
+<link href="./preprocessing_1.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Mapping gaze to areas of interest</span></h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Analysing Visual-World Eyetracking Data Reproducibly</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/dalejbarr/vw-analysis/" title="Source Code" class="sidebar-tool px-1"><i class="bi bi-github"></i></a>
+    <a href="" title="Share" id="sidebar-tool-dropdown-0" class="sidebar-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-share"></i></a>
+    <ul class="dropdown-menu" aria-labelledby="sidebar-tool-dropdown-0">
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="https://twitter.com/intent/tweet?url=|url|">
+            <i class="bi bi-bi-twitter pe-1"></i>
+          Twitter
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="https://www.facebook.com/sharer/sharer.php?u=|url|">
+            <i class="bi bi-bi-facebook pe-1"></i>
+          Facebook
+          </a>
+        </li>
+    </ul>
+</div>
+    </div>
+      </div>
+      <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">Background</a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">Pre-processing</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./preprocessing_1.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Import, epoching, and time-alignment</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./preprocessing_2.html" class="sidebar-item-text sidebar-link active"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Mapping gaze to areas of interest</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">Visualization and Analysis</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./plotting.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Plot probabilities</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">Appendices</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">References</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./data-structure.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">Structure of Weighall et al.&nbsp;(2017) raw data</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#image-locations-for-each-trial" id="toc-image-locations-for-each-trial" class="nav-link active" data-scroll-target="#image-locations-for-each-trial"><span class="toc-section-number">2.1</span>  Image locations for each trial</a>
+  <ul class="collapse">
+  <li><a href="#activity-get-coordinates" id="toc-activity-get-coordinates" class="nav-link" data-scroll-target="#activity-get-coordinates"><span class="toc-section-number">2.1.1</span>  Activity: Get coordinates</a></li>
+  </ul></li>
+  <li><a href="#identifying-frames-where-the-gaze-cursor-is-within-an-aoi" id="toc-identifying-frames-where-the-gaze-cursor-is-within-an-aoi" class="nav-link" data-scroll-target="#identifying-frames-where-the-gaze-cursor-is-within-an-aoi"><span class="toc-section-number">2.2</span>  Identifying frames where the gaze cursor is within an AOI</a>
+  <ul class="collapse">
+  <li><a href="#activity-create-frames_in" id="toc-activity-create-frames_in" class="nav-link" data-scroll-target="#activity-create-frames_in"><span class="toc-section-number">2.2.1</span>  Activity: Create <code>frames_in</code></a></li>
+  <li><a href="#activity-create-frames_out" id="toc-activity-create-frames_out" class="nav-link" data-scroll-target="#activity-create-frames_out"><span class="toc-section-number">2.2.2</span>  Activity: Create <code>frames_out</code></a></li>
+  <li><a href="#activity-combine-into-pog" id="toc-activity-combine-into-pog" class="nav-link" data-scroll-target="#activity-combine-into-pog"><span class="toc-section-number">2.2.3</span>  Activity: Combine into <code>pog</code></a></li>
+  </ul></li>
+  <li><a href="#dealing-with-trial-dropouts" id="toc-dealing-with-trial-dropouts" class="nav-link" data-scroll-target="#dealing-with-trial-dropouts"><span class="toc-section-number">2.3</span>  Dealing with trial dropouts</a>
+  <ul class="collapse">
+  <li><a href="#activity-selected-object" id="toc-activity-selected-object" class="nav-link" data-scroll-target="#activity-selected-object"><span class="toc-section-number">2.3.1</span>  Activity: Selected object</a></li>
+  <li><a href="#activity-pad-frames" id="toc-activity-pad-frames" class="nav-link" data-scroll-target="#activity-pad-frames"><span class="toc-section-number">2.3.2</span>  Activity: Pad frames</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title d-none d-lg-block"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Mapping gaze to areas of interest</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    
+  </div>
+  
+
+</header>
+
+<p>At this point we have epoched our eyetracking data, resulting in the <code>edat-epoched.rds</code> file which looks like so:</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<thead>
+<tr class="header">
+<th style="text-align: right;">sub_id</th>
+<th style="text-align: right;">t_id</th>
+<th style="text-align: right;">f_c</th>
+<th style="text-align: right;">x</th>
+<th style="text-align: right;">y</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-90</td>
+<td style="text-align: right;">1010</td>
+<td style="text-align: right;">209</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-89</td>
+<td style="text-align: right;">1010</td>
+<td style="text-align: right;">214</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-88</td>
+<td style="text-align: right;">1020</td>
+<td style="text-align: right;">216</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-87</td>
+<td style="text-align: right;">1014</td>
+<td style="text-align: right;">217</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-86</td>
+<td style="text-align: right;">1027</td>
+<td style="text-align: right;">221</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-85</td>
+<td style="text-align: right;">1027</td>
+<td style="text-align: right;">220</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>We know <strong>when</strong> people are looking relative to the disambiguation point for the trial (<code>f_c</code>), and we know <strong>where</strong> they are looking, because we have the (x, y) coordinates. But we yet don’t know <strong>which image they are looking at</strong> on each frame. So we have to map the two-dimensional gaze coordinates onto the coordinates of the images that was displayed on a given trial.</p>
+<p><img src="img/screens.png" class="img-fluid"></p>
+<p>We know what pictures were shown on each trial from the data in the <code>screens</code> table (from <code>data-raw/screens.csv</code>).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>screens <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data-raw/screens.csv"</span>,</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>                    <span class="at">col_types =</span> <span class="st">"iicc"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The table looks like so.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1,024 × 4
+    s_id   loc role     bitmap          
+   &lt;int&gt; &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;           
+ 1     1     3 critical bacon.bmp       
+ 2     1     4 existing EDsandcastle.bmp
+ 3     1     2 novel    ND_104.bmp      
+ 4     1     1 target   baker.bmp       
+ 5     2     3 critical penny.bmp       
+ 6     2     4 existing EDsandcastle.bmp
+ 7     2     2 novel    ND_104.bmp      
+ 8     2     1 target   baker.bmp       
+ 9     3     2 critical beetle.bmp      
+10     3     4 existing EDcaptain.bmp   
+# … with 1,014 more rows</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<colgroup>
+<col style="width: 12%">
+<col style="width: 8%">
+<col style="width: 79%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">variable</th>
+<th style="text-align: left;">type</th>
+<th style="text-align: left;">description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">s_id</td>
+<td style="text-align: left;"><int></int></td>
+<td style="text-align: left;">arbitrary value uniquely identifying each display screen</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">loc</td>
+<td style="text-align: left;"><int></int></td>
+<td style="text-align: left;">arbitrary integer identifying each rectangle</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">role</td>
+<td style="text-align: left;"><chr></chr></td>
+<td style="text-align: left;">image’s role in the set (target, critical, existing novel)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">bitmap</td>
+<td style="text-align: left;"><chr></chr></td>
+<td style="text-align: left;">name of bitmap file</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>The <code>loc</code> variable is a number that refers to the four quadrants of the screen where the images appeared. We can get the pixel coordinates representing the top left and bottom right corners of each rectangle from the <code>locations</code> table.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>locations <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data-raw/locations.csv"</span>,</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">col_types =</span> <span class="st">"iiiii"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 5
+    loc    x1    y1    x2    y2
+  &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt;
+1     1     0     0   575   460
+2     2   704     0  1279   460
+3     3     0   564   575  1023
+4     4   704   564  1279  1023</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<colgroup>
+<col style="width: 12%">
+<col style="width: 8%">
+<col style="width: 78%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">variable</th>
+<th style="text-align: left;">type</th>
+<th style="text-align: left;">description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">loc</td>
+<td style="text-align: left;"><int></int></td>
+<td style="text-align: left;">arbitrary integer identifying each rectangle</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">x1</td>
+<td style="text-align: left;"><int></int></td>
+<td style="text-align: left;">horizontal coordinate of top-left corner in pixels</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">y1</td>
+<td style="text-align: left;"><int></int></td>
+<td style="text-align: left;">vertical coordinate of top-left corner in pixels</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">x2</td>
+<td style="text-align: left;"><int></int></td>
+<td style="text-align: left;">horizontal coordinate of bottom-right corner in pixels</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">y2</td>
+<td style="text-align: left;"><int></int></td>
+<td style="text-align: left;">vertical coordinate of bottom-right corner in pixels</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<section id="image-locations-for-each-trial" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="image-locations-for-each-trial"><span class="header-section-number">2.1</span> Image locations for each trial</h2>
+<section id="activity-get-coordinates" class="level3" data-number="2.1.1">
+<h3 data-number="2.1.1" class="anchored" data-anchor-id="activity-get-coordinates"><span class="header-section-number">2.1.1</span> Activity: Get coordinates</h3>
+<p>We want to combine the data from <code>screens</code> and <code>locations</code> with trial info to create the following table, which we will use later to figure out what image was being looked at (if any) on each frame of each trial. Save this information in a table named <code>aoi</code> (for <strong>A</strong>rea <strong>O</strong>f <strong>I</strong>nterest). You might need to reference <a href="data-structure.html"><span>Appendix&nbsp;A</span></a> to see how to get <code>sub_id</code> and <code>t_id</code> into the table.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 22,576 × 8
+   sub_id  t_id  s_id role        x1    y1    x2    y2
+    &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;chr&gt;    &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt;
+ 1      1     1   183 critical   704   564  1279  1023
+ 2      1     1   183 existing     0   564   575  1023
+ 3      1     1   183 novel        0     0   575   460
+ 4      1     1   183 target     704     0  1279   460
+ 5      1     2   194 critical     0   564   575  1023
+ 6      1     2   194 existing   704     0  1279   460
+ 7      1     2   194 novel        0     0   575   460
+ 8      1     2   194 target     704   564  1279  1023
+ 9      1     3    33 critical   704     0  1279   460
+10      1     3    33 existing     0   564   575  1023
+# … with 22,566 more rows</code></pre>
+</div>
+</div>
+<div class="callout-important callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>We can get <code>sub_id</code> and <code>t_id</code> from <code>trials</code>. But to get there from <code>screens</code>, we need to get the item version (<code>iv_id</code>) from <code>stimuli</code>. We can connect <code>screens</code> to <code>stimuli</code> through the screen id (<code>s_id</code>).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>trials <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data-raw/trials.csv"</span>,</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">col_types =</span> <span class="st">"iiiiii"</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>stimuli <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data-raw/stimuli.csv"</span>,</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>                    <span class="at">col_types =</span> <span class="st">"iiciccc"</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>aoi <span class="ot">&lt;-</span> trials <span class="sc">%&gt;%</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(sub_id, t_id, iv_id) <span class="sc">%&gt;%</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(stimuli, <span class="st">"iv_id"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(screens, <span class="st">"s_id"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(locations, <span class="st">"loc"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(sub_id, t_id, s_id, role, x1, y1, x2, y2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>As a check, we should have four times the number of rows as <code>trials</code> (5644), because there should be four areas of interest for each trial. We can use <code>stopifnot()</code> to make our script terminate if this condition is not satisfied.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>( <span class="fu">nrow</span>(aoi) <span class="sc">==</span> <span class="dv">4</span> <span class="sc">*</span> <span class="fu">nrow</span>(trials) )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="identifying-frames-where-the-gaze-cursor-is-within-an-aoi" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="identifying-frames-where-the-gaze-cursor-is-within-an-aoi"><span class="header-section-number">2.2</span> Identifying frames where the gaze cursor is within an AOI</h2>
+<p>What we need to do now is look at the (<code>x</code>, <code>y</code>) coordinates in <code>edat</code> and see if they fall within the bounding box for each image in the <code>aoi</code> table for the corresponding trial.</p>
+<section id="activity-create-frames_in" class="level3" data-number="2.2.1">
+<h3 data-number="2.2.1" class="anchored" data-anchor-id="activity-create-frames_in"><span class="header-section-number">2.2.1</span> Activity: Create <code>frames_in</code></h3>
+<p>There are different ways to accomplish this task, but an effective strategy is just to join the eyedata (<code>edat</code>) to the <code>aoi</code> table and retain any frames where the <code>x</code> coordinate of the eye gaze is within the <code>x1</code> and <code>x2</code> coordinates of the rectangle, and the <code>y</code> coordinate is within the <code>y1</code> and <code>y2</code> coordinates. Because our AOIs do not overlap, the gaze can only be within a single AOI at a time.</p>
+<p>Name the resulting table <code>frames_in</code>.</p>
+<div class="callout-tip callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Hint
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Some code to get you started.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>edat <span class="sc">%&gt;%</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(aoi, <span class="fu">c</span>(<span class="st">"sub_id"</span>, <span class="st">"t_id"</span>)) <span class="co"># %&gt;%</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="do">## filter(...) </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 759,311 × 4
+   sub_id  t_id   f_c role  
+    &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;chr&gt; 
+ 1      1     1   -90 target
+ 2      1     1   -89 target
+ 3      1     1   -88 target
+ 4      1     1   -87 target
+ 5      1     1   -86 target
+ 6      1     1   -85 target
+ 7      1     1   -84 target
+ 8      1     1   -83 target
+ 9      1     1   -82 target
+10      1     1   -81 target
+# … with 759,301 more rows</code></pre>
+</div>
+</div>
+<div class="callout-important callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>frames_in <span class="ot">&lt;-</span> edat <span class="sc">%&gt;%</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(aoi, <span class="fu">c</span>(<span class="st">"sub_id"</span>, <span class="st">"t_id"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(x <span class="sc">&gt;=</span> x1, x <span class="sc">&lt;=</span> x2,</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>         y <span class="sc">&gt;=</span> y1, y <span class="sc">&lt;=</span> y2) <span class="sc">%&gt;%</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(sub_id, t_id, f_c, role)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="activity-create-frames_out" class="level3" data-number="2.2.2">
+<h3 data-number="2.2.2" class="anchored" data-anchor-id="activity-create-frames_out"><span class="header-section-number">2.2.2</span> Activity: Create <code>frames_out</code></h3>
+<p>Create a table <code>frames_out</code> containing only those frames from <code>edat</code> where the gaze fell outside of any of the four image regions, and label those with the role <code>(blank)</code>. Use the <code>anti_join()</code> function from <code>dplyr</code> to do so.</p>
+<p>The resulting table should have the format below.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 182,504 × 4
+   sub_id  t_id   f_c role   
+    &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;chr&gt;  
+ 1      1     1   -69 (blank)
+ 2      1     1   -68 (blank)
+ 3      1     1   -66 (blank)
+ 4      1     1   -49 (blank)
+ 5      1     1    -9 (blank)
+ 6      1     1    -8 (blank)
+ 7      1     1    -7 (blank)
+ 8      1     1    -6 (blank)
+ 9      1     1    -5 (blank)
+10      1     1    -4 (blank)
+# … with 182,494 more rows</code></pre>
+</div>
+</div>
+<div class="callout-tip callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Hint: Show me an example of <code>anti_join()</code>
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>table_x <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">letter =</span> <span class="fu">c</span>(<span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"D"</span>, <span class="st">"E"</span>),</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">number =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>))</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>table_x</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 2
+  letter number
+  &lt;chr&gt;   &lt;dbl&gt;
+1 A           1
+2 B           2
+3 C           3
+4 D           4
+5 E           5</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>table_y <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">letter =</span> <span class="fu">c</span>(<span class="st">"C"</span>, <span class="st">"D"</span>, <span class="st">"E"</span>),</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">number =</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">99</span>))</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>table_y</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 2
+  letter number
+  &lt;chr&gt;   &lt;dbl&gt;
+1 C           3
+2 D           4
+3 E          99</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="do">## which rows in table_x are not in table_y?</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">anti_join</span>(table_x, table_y, <span class="fu">c</span>(<span class="st">"letter"</span>, <span class="st">"number"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 2
+  letter number
+  &lt;chr&gt;   &lt;dbl&gt;
+1 A           1
+2 B           2
+3 E           5</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="callout-important callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>frames_out <span class="ot">&lt;-</span> edat <span class="sc">%&gt;%</span> </span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(sub_id, t_id, f_c) <span class="sc">%&gt;%</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">anti_join</span>(frames_in, <span class="fu">c</span>(<span class="st">"sub_id"</span>, <span class="st">"t_id"</span>, <span class="st">"f_c"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">role =</span> <span class="st">"(blank)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>A good test to do at this point is to make sure that all 941,815 rows of <code>edat</code> have been assigned to either <code>frames_in</code> or <code>frames_out</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>( <span class="fu">nrow</span>(edat) <span class="sc">==</span> (<span class="fu">nrow</span>(frames_in) <span class="sc">+</span> <span class="fu">nrow</span>(frames_out)) ) <span class="co"># TRUE</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="activity-combine-into-pog" class="level3" data-number="2.2.3">
+<h3 data-number="2.2.3" class="anchored" data-anchor-id="activity-combine-into-pog"><span class="header-section-number">2.2.3</span> Activity: Combine into <code>pog</code></h3>
+<p>Combine <code>frames_in</code> and <code>frames_out</code> into a single table by concatenating the rows. Sort the rows so by <code>sub_id</code>, <code>t_id</code>, and <code>f_c</code>, and convert <code>role</code> into type <code>factor</code> with levels in this order: <code>target</code>, <code>critical</code>, <code>existing</code>, <code>novel</code>, and <code>(blank)</code>. The resulting table should be called <code>pog</code> and have the format below.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 941,815 × 4
+   sub_id  t_id   f_c role  
+    &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;fct&gt; 
+ 1      1     1   -90 target
+ 2      1     1   -89 target
+ 3      1     1   -88 target
+ 4      1     1   -87 target
+ 5      1     1   -86 target
+ 6      1     1   -85 target
+ 7      1     1   -84 target
+ 8      1     1   -83 target
+ 9      1     1   -82 target
+10      1     1   -81 target
+# … with 941,805 more rows</code></pre>
+</div>
+</div>
+<div class="callout-tip callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+How do I concatenate two tables?
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Use the <code>bind_rows()</code> function from <strong><code>{dplyr}</code></strong>.</p>
+</div>
+</div>
+</div>
+<div class="callout-important callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-7" class="callout-7-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+
+</div>
+<p>We might want to check that <code>role</code> has been defined properly.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>pog <span class="sc">%&gt;%</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(role) <span class="sc">%&gt;%</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">levels</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "target"   "critical" "existing" "novel"    "(blank)" </code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="dealing-with-trial-dropouts" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="dealing-with-trial-dropouts"><span class="header-section-number">2.3</span> Dealing with trial dropouts</h2>
+<div class="cell">
+
+</div>
+<p>We want to be able to use the data in <code>pog</code> to calculate probabilities of gazing at regions over time. However, we are not ready to do this yet.</p>
+<p>If we look at the first seven trials from subject 3, we can see that there is a problem, because the trials end at different times, due to variation in response time. If we plot the resulting data, we will have fewer and fewer data points as we progress through the trial.</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="preprocessing_2_files/figure-html/dropout-fig-1.png" class="img-fluid" width="768"></p>
+</div>
+</div>
+<p>A solution to this is to make each time series “cumulative to selection”, which means padding frames after the trial ends with artificial looks to the object that was selected. In other words, we pretend that the subject remained fixated on the selected object after clicking.</p>
+<p>But before we do this, we should double check that trials also <strong>start</strong> at the same frame (-90). Once we pass this sanity check we can pad frames at the end.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>start_frame <span class="ot">&lt;-</span> edat <span class="sc">%&gt;%</span> </span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(sub_id, t_id) <span class="sc">%&gt;%</span> </span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">min_f_c =</span> <span class="fu">min</span>(f_c), <span class="co"># get the minimum frame per trial</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(min_f_c) <span class="sc">%&gt;%</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unique</span>() <span class="co"># what are the unique values?</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="do">## if the value is the same for every trial, there should be</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a><span class="do">## just one element in this vector</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>( <span class="fu">length</span>(start_frame) <span class="sc">==</span> 1L )</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>start_frame</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] -90</code></pre>
+</div>
+</div>
+<section id="activity-selected-object" class="level3" data-number="2.3.1">
+<h3 data-number="2.3.1" class="anchored" data-anchor-id="activity-selected-object"><span class="header-section-number">2.3.1</span> Activity: Selected object</h3>
+<p>Which object was selected on each trial? The <code>trials</code> table tells us which location was clicked (1, 2, 3, 4) but not which object. We need to figure out which object was clicked by retrieving that information from the <code>screens</code> table. The result should have the format below.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5,644 × 3
+   sub_id  t_id role  
+    &lt;int&gt; &lt;int&gt; &lt;chr&gt; 
+ 1      1     1 target
+ 2      1     2 target
+ 3      1     3 target
+ 4      1     4 target
+ 5      1     6 target
+ 6      1     7 target
+ 7      1    11 target
+ 8      1    13 target
+ 9      1    14 target
+10      1    16 target
+# … with 5,634 more rows</code></pre>
+</div>
+</div>
+<div class="callout-important callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-8-contents" aria-controls="callout-8" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-8" class="callout-8-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="do">## which object was selected on each trial?</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>selections <span class="ot">&lt;-</span> trials <span class="sc">%&gt;%</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(stimuli, <span class="st">"iv_id"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(screens, <span class="fu">c</span>(<span class="st">"s_id"</span>, <span class="st">"resploc"</span> <span class="ot">=</span> <span class="st">"loc"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(sub_id, t_id, role)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<p>Now that we know what object was selected, we want to pad trials up to the latest frame in the dataset, which we determined during epoching as frame 90 (that is, 1.5 seconds after the disambiguation point).</p>
+<p>We will use the <code>crossing()</code> function (from <strong><code>{tidyr}</code></strong>) to create a table with all combinations of the rows from <code>selections</code> with frames <code>f_c</code> from 0 to 90. Then, in the next activity, we will use <code>anti_join()</code> to pull out the combinations that are missing from <code>pog</code>, and use them in padding.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>all_frames <span class="ot">&lt;-</span> <span class="fu">crossing</span>(selections, <span class="fu">tibble</span>(<span class="at">f_c =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">90</span>))</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>all_frames</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 513,604 × 4
+   sub_id  t_id role     f_c
+    &lt;int&gt; &lt;int&gt; &lt;chr&gt;  &lt;int&gt;
+ 1      1     1 target     0
+ 2      1     1 target     1
+ 3      1     1 target     2
+ 4      1     1 target     3
+ 5      1     1 target     4
+ 6      1     1 target     5
+ 7      1     1 target     6
+ 8      1     1 target     7
+ 9      1     1 target     8
+10      1     1 target     9
+# … with 513,594 more rows</code></pre>
+</div>
+</div>
+</section>
+<section id="activity-pad-frames" class="level3" data-number="2.3.2">
+<h3 data-number="2.3.2" class="anchored" data-anchor-id="activity-pad-frames"><span class="header-section-number">2.3.2</span> Activity: Pad frames</h3>
+<p>Use <code>anti_join()</code> to find out which frames in <code>all_frames</code> are missing from <code>pog</code>. Concatenate these frames onto <code>pog</code>, storing the result in <code>pog_cts</code>. The resulting table should have a variable <code>pad</code> which is <code>FALSE</code> if the frame is an original one, and <code>TRUE</code> if it was added through the padding procedure. Sort the rows of <code>pog_cts</code> by <code>sub_id</code>, <code>t_id</code>, and <code>f_c</code>. The format is shown below.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1,021,288 × 5
+   sub_id  t_id   f_c role   pad  
+    &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;chr&gt;  &lt;lgl&gt;
+ 1      1     1   -90 target FALSE
+ 2      1     1   -89 target FALSE
+ 3      1     1   -88 target FALSE
+ 4      1     1   -87 target FALSE
+ 5      1     1   -86 target FALSE
+ 6      1     1   -85 target FALSE
+ 7      1     1   -84 target FALSE
+ 8      1     1   -83 target FALSE
+ 9      1     1   -82 target FALSE
+10      1     1   -81 target FALSE
+# … with 1,021,278 more rows</code></pre>
+</div>
+</div>
+<div class="callout-important callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-9-contents" aria-controls="callout-9" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-9" class="callout-9-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+
+</div>
+</div>
+</div>
+</div>
+<p>One thing that may have happened in the process above is that <code>role</code> is no longer a factor. So let’s convert it back before we finish.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>pog_cts2 <span class="ot">&lt;-</span> pog_cts <span class="sc">%&gt;%</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">role =</span> <span class="fu">fct_relevel</span>(role, <span class="fu">c</span>(<span class="st">"target"</span>, <span class="st">"critical"</span>,</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>                                    <span class="st">"existing"</span>, <span class="st">"novel"</span>, <span class="st">"(blank)"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now let’s double check that the padding worked by looking again at some trials from subject 3.</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="preprocessing_2_files/figure-html/plot-padded-1.png" class="img-fluid" width="768"></p>
+</div>
+</div>
+<p>Looks good. Now let’s save all our hard work so that we can use <code>pog_cts2</code> as a starting point for analysis.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(pog_cts2, <span class="st">"data-derived/pog_cts.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./preprocessing_1.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Import, epoching, and time-alignment</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./plotting.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Plot probabilities</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+      <div class="nav-footer-center">Copyright 2022, Dale J. Barr. Content licensed under Creative Commons CC-BY-SA.</div>
+  </div>
+</footer>
+
+
+
+</body></html>

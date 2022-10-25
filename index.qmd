@@ -1,0 +1,11 @@
+# Background {.unnumbered}
+
+For this workshop, we will be reproducing data from a study by @weighall2017 on the role of sleep in learning novel words (lexical consolidation).
+
+Weighall, A. R., Henderson, L. M., Barr, D. J., Cairney, S. A., & Gaskell, M. G. (2017). Eye-tracking the time‐course of novel word learning and lexical competition in adults and children. *Brain and Language*, *167*, 13-27.
+
+## Raw data
+
+![](img/database/data-raw.png){#fig-weighall}
+
+Figure @fig-weighall shows the data.

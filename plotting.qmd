@@ -1,0 +1,146 @@
+## Plot probabilities
+
+In the last chapter, we completed data preprocessing and saved the resulting data to as an R binary RDS file, `pog_cts.rds`. In this chapter, we will import the data and use it to recreate some of the figures in @weighall2017.
+
+First, let's load in **`{tidyverse}`** and then import the point-of-gaze data.
+
+```{r}
+#| label: setup
+library("tidyverse")
+
+pog_cts <- read_rds("data-derived/pog_cts.rds")
+```
+
+As usual, the first thing we should do is have a look at our data.
+
+```{r}
+#| label: show-pog-data
+#| echo: false
+pog_cts
+```
+
+The data has `sub_id` and `t_id` which identify individual subjects and trials-within-subjects, respectively. But we are missing iformation about what group the subject belongs to (adult or child) and what experimental condition each trial belongs to.
+
+## Merge eye data with information about group and condition
+
+### Activity: Get trial condition
+
+The first step is to create `trial_cond`, which has information about the group that each subject belongs to, the competitor type (existing or novel), and the condition (the identity of the critical object). The information we need is distributed across the `subjects`, `trials`, and `stimuli` tables (see @sec-datastruct). Create `trial_cond` so that the resulting table matches the format below.
+
+```{r}
+#| label: pog-condition-format
+#| echo: false
+trials <- read_csv("data-raw/trials.csv",
+                   col_types = "iiiiii")
+
+stimuli <- read_csv("data-raw/stimuli.csv",
+                    col_types = "iiciccc")
+
+subjects <- read_csv("data-raw/subjects.csv",
+                     col_types = "ic")
+
+trial_cond <- trials %>%
+  inner_join(stimuli, "iv_id") %>%
+  inner_join(subjects, "sub_id") %>%
+  select(sub_id, group, t_id, ctype, crit)
+
+trial_cond
+```
+
+:::{.callout-important collapse="true"}
+## Solution
+
+```{r}
+#| label: pog-condition
+#| eval: false
+trials <- read_csv("data-raw/trials.csv",
+                   col_types = "iiiiii")
+
+stimuli <- read_csv("data-raw/stimuli.csv",
+                    col_types = "iiciccc")
+
+subjects <- read_csv("data-raw/subjects.csv",
+                     col_types = "ic")
+
+trial_cond <- trials %>%
+  inner_join(stimuli, "iv_id") %>%
+  inner_join(subjects, "sub_id") %>%
+  select(sub_id, group, t_id, ctype, crit)
+```
+
+::: 
+
+## Plot probabilities for existing competitors
+
+We want to determine the probability of looking at each image type at each frame in each condition. We will do this first for the existing competitors. Note there were two conditions here, indexed by `crit`: `competitor` and `unrelated`, corresponding to whether the critical image was a competitor or an unrelated item.
+
+### Activity: Probs for `exist` condition
+
+From `trial_cond`, include only those trials where `ctype` takes on the value `exist`, combine with `pog_cts`, and then count the number of frames in each region for every combination of the levels of group (`adult`, `child`) and `crit` (`competitor`, `unrelated`). The resulting table should have the format below, where `Y` is the number of frames for each combination. While you're at it, convert `f_c` to milliseconds (`1000 * f_c / 60`). Call the resulting table `count_exist`.
+
+:::{.callout-tip collapse="true"}
+#### Hint: Counting things
+
+Use the `count()` function from **`{dplyr}`**. Take note of the `.drop` argument to deal with possible situations where there are zero observations. For example:
+
+```{r}
+pets <- tibble(animal = factor(rep(c("dog", "cat", "ferret"), c(3, 2, 0)),
+                               levels = c("dog", "cat", "ferret")))
+
+pets
+
+pets %>%
+  count(animal)
+
+pets %>%
+  count(animal, .drop = FALSE)
+```
+
+:::
+
+```{r}
+#| label: count-exist-format
+#| echo: false
+count_exist <- trial_cond %>%
+  filter(ctype == "exist") %>%
+  inner_join(pog_cts, c("sub_id", "t_id")) %>%
+  count(group, crit, f_c, role, name = "Y", .drop = FALSE) %>%
+  mutate(ms = 1000 * f_c / 60)
+
+count_exist
+```
+
+:::{.callout-important collapse="true"}
+#### Solution
+
+```{r}
+#| label: count-exist
+#| eval: false
+count_exist <- trial_cond %>%
+  filter(ctype == "exist") %>%
+  inner_join(pog_cts, c("sub_id", "t_id")) %>%
+  count(group, crit, f_c, role, name = "Y", .drop = FALSE) %>%
+  mutate(ms = 1000 * f_c / 60)
+```
+
+:::
+
+To calculate the probability for each value of `role`, we need to calculate the number of opportunities for each combination of `group`, `crit`, and `f_c`, storing this in `N`. We do this using a [windowed mutate](https://dplyr.tidyverse.org/articles/window-functions.html), grouping the data before adding `N` for each group. We can then calculate the probability as `p = Y / N`.
+
+```{r}
+#| label: windowed-mutate
+prob_exist <- count_exist %>%
+  group_by(group, crit, f_c) %>%
+  mutate(N = sum(Y), p = Y / N) %>%
+  ungroup()
+```
+
+Now we are ready to plot.
+
+```{r}
+ggplot(prob_exist %>% filter(role != "(blank)"), 
+       aes(ms, p, color = role)) +
+  geom_line() +
+  facet_wrap(group ~ crit, nrow = 2)  +
+  coord_cartesian(xlim = c(-200, 1000))
+```

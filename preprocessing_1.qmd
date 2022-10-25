@@ -1,0 +1,388 @@
+# Import, epoching, and time-alignment
+
+```{r}
+#| label: setup
+#| include: false
+library("tidyverse")
+source("codebook.R")
+
+## get .gazedata filenames
+adults <- dir("data-raw/adult", full.names = TRUE)
+children <- dir("data-raw/child", full.names = TRUE)
+```
+
+The overall task here is to scrape out the data we want to use from each trial (epoching) and align the frame counters for all trials to the disambiguation point for the particular audio stimulus that was played on that trial (time-alignment). In other words, the disambiguation point should be the temporal "origin" (zero point) for the timeline on each trial.
+
+![](img/epoching.png)
+
+## Data import
+
+For the first part of pre-processing, we will load the eye data into our R session using functions from the **`{readr}`** package, which is one of many packages that is part of the **`{tidyverse}`** meta-package. The `.gazedata` files from the Tobii eyetracking system are in `.tsv` or **T**ab **S**eparated **V**alues format, for which we use `read_tsv()`.
+
+Before we can perform epoching and time-alignment, we have to import and clean up the `.gazedata` files. These are `r length(adults)` adult data files and `r length(children)` child data files located in the `adult` and `child` subdirectories of `data-raw/`. These files follow the naming convention `data-raw/adult/sub_XXX.gazedata` and `data-raw/child/sub_XXX.gazedata` where the `XXX` part of the filename the unique integer identifying each subject, which corresponds to `sub_id` in the `subjects` table.
+
+The raw gazedata files include a lot of unnecessary information. We'll need to scrape out the data that we need and convert the `XXX` value from the filename into a `sub_id` variable in the resulting table. The source files have the format below.
+
+```{r}
+#| label: show-eyedata
+#| echo: false
+knitr::kable(eye_cb)
+```
+
+### Activity: One Subject
+
+Read in the Tobii eyetracking data for a single subject from the datafile `data-raw/adult/sub_003.gazedata`, and convert it to the format below.
+
+```{r}
+#| label: show-eyedata-target-format
+#| echo: false
+
+## try out for just one participant first!
+read_tsv("data-raw/adult/sub_003.gazedata",
+                 col_types = cols_only(ID = col_integer(),
+                                       TrialId = col_integer(),
+                                       CursorX = col_integer(),
+                                       CursorY = col_integer(),
+                                       TimestampSec = col_integer(),
+                                       TimestampMicrosec = col_integer(),
+                                       UserDefined_1 = col_character()),
+                 id = "filename") %>%
+  ## convert XXX to sub_id
+  mutate(sub_id = substr(filename, 20, 22) %>% as.integer(),
+         sec = TimestampSec + TimestampMicrosec / 1000000) %>%
+  select(sub_id, t_id = TrialId, f_id = ID,
+         sec, x = CursorX, y = CursorY,
+         phase = UserDefined_1) %>%
+  filter(phase != "Fixation")
+```
+
+Here, we have renamed `TrialId` to `t_id`, which is the name it takes throughout the rest of the database. We have also renamed `CursorX` and `CursorY` to `x` and `y` respectively. We have also renamed `ID` to `f_id` (frame id) and `UserDefined_1` to `phase`. We also exclude any frames from the phase where `UserDefined_1 == "Fixation"`, because these frames are not informative, and doing so reduces the size of the data we need to import.
+
+:::{.callout-tip collapse="true"}
+## Hint: Importing only those columns you need
+
+Use the `col_types` argument to `read_tsv()` and the `cols_only()` specification.
+
+For instance, something like:
+
+```{r}
+#| label: hint-cols-only
+#| eval: false
+read_tsv("data-raw/adult/sub_003.gazedata",
+         col_types = cols_only(ID = col_integer(),
+                              # [..etc]
+                              ),
+         #.. other args to read_tsv,
+         )
+```
+
+Type `?readr::cols_only` in the console to learn more about specifying columns during data import.
+
+:::
+
+
+:::{.callout-tip collapse="true"}
+## Hint: Extracting the subject id number
+
+You can use the `id` argument to `read_tsv()` to specify the name of a variable in the resulting data frame that has the filename as its value.
+
+You can then create a new variable using `mutate()` that extracts the `XXX` substring (positions 20-22 of the string) and then converts it to an integer.
+
+```{r}
+#| label: hint-sub-id
+#| eval: false
+read_tsv("data-raw/adult/sub_003.gazedata",
+         id = "filename",
+         # other args to read_tsv()...
+         ) %>%
+  mutate(sub_id = substr(filename, 20, 22) %>% as.integer()) # %>%
+  ## rest of your pipeline..
+```
+
+
+:::
+
+
+:::{.callout-important collapse="true"}
+## Solution
+
+```{r}
+#| label: solution-to-import
+#| eval: false
+library("tidyverse")
+
+## make sure that your working directory is properly set!
+
+read_tsv("data-raw/adult/sub_003.gazedata",
+         col_types = cols_only(ID = col_integer(),
+                               TrialId = col_integer(),
+                               CursorX = col_integer(),
+                               CursorY = col_integer(),
+                               TimestampSec = col_integer(),
+                               TimestampMicrosec = col_integer(),
+                               UserDefined_1 = col_character()),
+         id = "filename") %>%
+  ## convert XXX to sub_id
+  mutate(sub_id = substr(filename, 20, 22) %>% as.integer(),
+         sec = TimestampSec + TimestampMicrosec / 1000000) %>%
+  select(sub_id, t_id = TrialId, f_id = ID,
+         sec, x = CursorX, y = CursorY,
+         phase = UserDefined_1) %>%
+  filter(phase != "Fixation")
+```
+:::
+
+
+### Activity: All Subjects
+
+Now adapt the code that you wrote above to load in *all* `r length(c(adults, children))` into a single table, which should have the same format as for the data you imported for subject 3 above.
+
+:::{.callout-tip collapse="false"}
+The `readr` functions like `read_tsv()` make it easy to read in multiple files. All you need to do is to provide a vector of filenames as the first argument.
+
+For example, `read_tsv(c("file1.tsv", "file2.tsv"))` will read both `file1.tsv` and `file2.tsv` and bind together the rows imported from both files in the result.
+:::
+
+:::{.callout-tip collapse="true"}
+## Hint: How do I get a vector of all the files in a directory?
+The `dir()` function for base R can be used to list files. Examples:
+
+```{r}
+#| label: dir-function1
+dir("data-raw")
+```
+
+```{r}
+#| label: dir-function2
+adults <- dir("data-raw/adult", full.names = TRUE)
+
+adults
+```
+:::
+
+
+:::{.callout-important collapse="true"}
+## Solution
+
+```{r}
+#| label: import-eye-data
+#| eval: true
+#| cache: true
+#| echo: true
+
+## get .gazedata filenames
+adults <- dir("data-raw/adult", full.names = TRUE)
+children <- dir("data-raw/child", full.names = TRUE)
+
+edat <- read_tsv(c(adults, children),
+                 col_types = cols_only(ID = col_integer(),
+                                       TrialId = col_integer(),
+                                       CursorX = col_integer(),
+                                       CursorY = col_integer(),
+                                       TimestampSec = col_integer(),
+                                       TimestampMicrosec = col_integer(),
+                                       UserDefined_1 = col_character()),
+                 id = "filename") %>%
+  mutate(sub_id = substr(filename, 20, 22) %>% as.integer(),
+         sec = TimestampSec + TimestampMicrosec / 1000000) %>%
+  select(sub_id, t_id = TrialId, f_id = ID,
+         sec, x = CursorX, y = CursorY,
+         phase = UserDefined_1) %>%
+  filter(phase != "Fixation")
+
+edat
+```
+
+:::
+
+## Epoching and time-alignment
+
+The Tobii eyetracker recorded data at a rate of 60 Hertz (i.e., 60 frames per second, or one frame every 1/60th of a second.) For each trial, the frame counter (`ID`, which we renamed to `f_id`) starts at 1 and increments every frame. This is not very useful because we need to know when certain stimulus events occurred, and these will take place at a different frame number for every trial, depending on the timing of the speech events of the stimulus for that trial. We need to re-define the 'origin' of the eye-tracking data. In this study, we used the 'disambiguation point', which is the point in the word where the signal distinguishes between two competing lexical items (e.g., candy and candle).
+
+![](img/epoching.png){#fig-epoching}
+
+As @fig-epoching shows, each trial had three phases, a `Fixation`, `Preview`, and `StimSlide` phase, which are indexed by the variable `phase`. Playback of a soundfile with a pre-recorded speech stimulus began simultaneously with the onset of the `StimSlide` phase.
+
+For each trial (uniquely identified by `sub_id` and `t_id`), we are going to need to do two things to time-align the eye data to the disambiguation point.
+
+1. Find out what sound was played and the timing of the disambiguation point within that soundfile, as measured from the start of the file.
+
+2. Figure out the frame number corresponding to the start of the `StimSlide` phase and then adjust by the amount calculated in the previous step.
+
+### Activity: Disambiguation Point
+
+Create the table below from the raw data, which has information about the onset of the disambiguation point for each trial. Store the table as `origin_adj`.
+
+You may wish to consult @sec-datastruct to see what tables the values in the table below have been are drawn from. You'll need to import these tables into your session. All of these tables have the extension `.csv`, which indicates they are in **C**omma **S**eparated **V**alues format. The ideal way to import these files is to use `read_csv()` from the **`{readr}`** package.
+
+```{r}
+#| label: origin-adj
+#| echo: false
+trials <- read_csv("data-raw/trials.csv",
+                   col_types = "iiiiii")
+
+stimuli <- read_csv("data-raw/stimuli.csv",
+                    col_types = "iiciccc")
+
+speech <- read_csv("data-raw/speech-timings.csv",
+                   col_types = "ciii")
+
+origin_adj <- trials %>%
+  inner_join(stimuli, "iv_id") %>%
+  select(sub_id, t_id, sound) %>% 
+  inner_join(speech, "sound") %>% 
+  select(-article, -noun)
+
+origin_adj
+```
+
+
+:::{.callout-important collapse="true"}
+## Solution
+
+```{r}
+#| label: origin-adj-solution
+#| eval: false
+trials <- read_csv("data-raw/trials.csv",
+                   col_types = "iiiiii")
+
+stimuli <- read_csv("data-raw/stimuli.csv",
+                    col_types = "iiciccc")
+
+speech <- read_csv("data-raw/speech-timings.csv",
+                   col_types = "ciii")
+
+origin_adj <- trials %>%
+  inner_join(stimuli, "iv_id") %>% # to get `sound`
+  select(sub_id, t_id, sound) %>% 
+  inner_join(speech, "sound") %>% # to get the timings
+  select(-article, -noun)
+```
+
+:::
+
+### Activity: Onset of StimSlide
+
+Now let's do part 2, where we find the value of `f_id` for the first frame of eyedata for each trial following the onset of the `StimSlide` phase. We should have a table that looks like the one below, with one row for each trial, and where `f_ss` is the value of `f_id` for the earliest frame in the `StimSlide` phase.
+
+```{r}
+#| label: origin-frames-result
+#| echo: false
+## get the time origin
+origin_frames <- edat %>% 
+  filter(phase == "StimSlide") %>%
+  group_by(sub_id, t_id) %>%
+  summarise(f_ss = min(f_id),
+            .groups = "drop")
+
+origin_frames
+```
+
+
+:::{.callout-important collapse="true"}
+## Solution
+
+```{r}
+#| label: origin-frames
+#| eval: false
+## figure out the f_id for the earliest StimSlide frame
+origin_frames <- edat %>% 
+  filter(phase == "StimSlide") %>%
+  group_by(sub_id, t_id) %>%
+  summarise(f_ss = min(f_id),
+            .groups = "drop")
+
+origin_frames
+```
+
+:::
+
+### Activity: Combine origins
+
+Now that we have the first frame of `StimSlide` and the adjustment we have to make in milliseconds for the disambiguation point, combine the tables and calculate `f_z`, which will represent the "zero points" in frames for each trial. Store the resulting table in `origins`.
+
+```{r}
+#| label: origin-combined-result
+#| echo: false
+origins <- origin_frames %>%
+  inner_join(origin_adj, c("sub_id", "t_id")) %>%
+  mutate(f_z = round(f_ss + 60 * disambig_point / 1000) %>%
+           as.integer()) %>%
+  select(-sound)
+
+origins
+```
+
+:::{.callout-tip collapse="true"}
+#### Hint: How to convert milliseconds to frames of eye data
+
+There are 60 frames per second, so 60 frames per 1000 milliseconds.
+
+So to convert from milliseconds to frames:
+
+`f_z = 60 * ms / 1000`
+
+For example, if you have 500 ms, then 60 * 500 / 1000 = `r 60 * 500 / 1000`.
+
+:::
+
+
+:::{.callout-important collapse="true"}
+#### Solution
+
+```{r}
+#| label: origin-combined
+#| eval: false
+origins <- origin_frames %>%
+  inner_join(origin_adj, c("sub_id", "t_id")) %>%
+  mutate(f_z = round(f_ss + 60 * disambig_point / 1000) %>%
+           as.integer()) %>%
+  select(-sound)
+```
+
+:::
+
+### Activity: Time-align
+
+Now we're ready to calculate a new frame index on our eye data (`edat`), `f_c`, which is centered on the zero point, `f_z`. The resulting table should be called `epdat` and have the following structure.
+
+```{r}
+#| label: time-align-result
+#| cache: true
+#| echo: false
+epdat <- edat %>%
+  inner_join(origins, c("sub_id", "t_id")) %>%
+  mutate(f_c = f_id - f_z) %>%
+  select(sub_id, t_id, f_id, f_z, f_c, x, y)
+
+epdat
+```
+
+:::{.callout-important collapse="true"}
+#### Solution
+
+```{r}
+#| label: time-align
+#| eval: false
+epdat <- edat %>%
+  inner_join(origins, c("sub_id", "t_id")) %>%
+  mutate(f_c = f_id - f_z) %>%
+  select(sub_id, t_id, f_id, f_z, f_c, x, y)
+```
+
+:::
+
+## Save the data
+
+We've reached a stopping point. We'll want to save the epoched data so that we can use that as our starting point for the next preprocessing stage. We'll remove the variables `f_id` and `f_z` because we no longer need them. We'll also keep 1.5 seconds (90 frames) before and after the disambiguation point for each trial.
+
+```{r}
+#| label: save-data
+## if we haven't made a "data-derived" directory, do so now
+if (!dir.exists("data-derived")) dir.create("data-derived")
+
+epdat %>%
+  filter(f_c >= -90L, f_c <= 90L) %>%
+  select(-f_id, -f_z) %>%
+  saveRDS(file = "data-derived/edat-epoched.rds")
+```

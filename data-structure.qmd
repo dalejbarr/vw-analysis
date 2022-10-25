@@ -1,0 +1,3 @@
+# Structure of Weighall et al. (2017) raw data {#sec-datastruct}
+
+![](img/database/data-raw.png){#fig-datastructure}

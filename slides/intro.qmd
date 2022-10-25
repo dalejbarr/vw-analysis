@@ -1,0 +1,90 @@
+---
+title: "Session 1: Introduction and Pre-processing"
+author: "Dale Barr"
+format: revealjs
+---
+
+## Weighall et al. (2017)
+
+![](img/weighall_et-al_2017.jpg)
+
+## Existing competitors
+
+:::: {.columns}
+
+::: {.column width="60%"}
+
+![*"click on the candy"*](../img/weighall-existing-competitor.jpg)
+
+:::
+
+::: {.column width="40%"}
+
+```{r}
+#| message: false
+library("tibble")
+
+tribble(~image, ~role,
+        "candy", "target",
+        "candle", "critical (competitor)",
+        "lorry", "critical (unrelated)",
+        "(thing)", "novel",
+        "stamp", "existing") %>%
+  knitr::kable()
+```
+
+:::
+
+::::
+
+## Novel competitors
+
+:::: {.columns}
+
+::: {.column width="60%"}
+
+![*"click on the biscuit"*](../img/weighall-novel-competitor.jpg)
+
+:::
+
+::: {.column width="40%"}
+
+```{r}
+#| message: false
+library("tibble")
+
+tribble(~image, ~role,
+        "biscuit", "target",
+        "biscal", "critical (competitor)",
+        "lorry", "critical (unrelated)",
+        "(thing)", "novel",
+        "stamp", "existing") %>%
+  knitr::kable()
+```
+
+:::
+
+::::
+
+## Weighall et al. raw data
+
+![](../img/database/data-raw.png)
+
+## End goal
+
+
+
+## Pre-processing tasks
+
+1. Import
+2. Epoching and time-alignment
+3. Map point-of-gaze to areas of interest
+4. Deal with trial dropouts
+
+## 1. Import
+
+## 2. Epoching and time-alignment
+
+## 3. Mapping POG to AOI
+
+## 4. Trial dropouts

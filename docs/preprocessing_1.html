@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.1.251">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Analysing Visual-World Eyetracking Data Reproducibly - 1&nbsp; Import, epoching, and time-alignment</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./preprocessing_2.html" rel="next">
+<link href="./index.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Import, epoching, and time-alignment</span></h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Analysing Visual-World Eyetracking Data Reproducibly</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/dalejbarr/vw-analysis/" title="Source Code" class="sidebar-tool px-1"><i class="bi bi-github"></i></a>
+    <a href="" title="Share" id="sidebar-tool-dropdown-0" class="sidebar-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-share"></i></a>
+    <ul class="dropdown-menu" aria-labelledby="sidebar-tool-dropdown-0">
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="https://twitter.com/intent/tweet?url=|url|">
+            <i class="bi bi-bi-twitter pe-1"></i>
+          Twitter
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="https://www.facebook.com/sharer/sharer.php?u=|url|">
+            <i class="bi bi-bi-facebook pe-1"></i>
+          Facebook
+          </a>
+        </li>
+    </ul>
+</div>
+    </div>
+      </div>
+      <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">Background</a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">Pre-processing</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./preprocessing_1.html" class="sidebar-item-text sidebar-link active"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Import, epoching, and time-alignment</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./preprocessing_2.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Mapping gaze to areas of interest</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">Visualization and Analysis</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./plotting.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Plot probabilities</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">Appendices</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">References</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./data-structure.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">Structure of Weighall et al.&nbsp;(2017) raw data</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#data-import" id="toc-data-import" class="nav-link active" data-scroll-target="#data-import"><span class="toc-section-number">1.1</span>  Data import</a>
+  <ul class="collapse">
+  <li><a href="#activity-one-subject" id="toc-activity-one-subject" class="nav-link" data-scroll-target="#activity-one-subject"><span class="toc-section-number">1.1.1</span>  Activity: One Subject</a></li>
+  <li><a href="#activity-all-subjects" id="toc-activity-all-subjects" class="nav-link" data-scroll-target="#activity-all-subjects"><span class="toc-section-number">1.1.2</span>  Activity: All Subjects</a></li>
+  </ul></li>
+  <li><a href="#epoching-and-time-alignment" id="toc-epoching-and-time-alignment" class="nav-link" data-scroll-target="#epoching-and-time-alignment"><span class="toc-section-number">1.2</span>  Epoching and time-alignment</a>
+  <ul class="collapse">
+  <li><a href="#activity-disambiguation-point" id="toc-activity-disambiguation-point" class="nav-link" data-scroll-target="#activity-disambiguation-point"><span class="toc-section-number">1.2.1</span>  Activity: Disambiguation Point</a></li>
+  <li><a href="#activity-onset-of-stimslide" id="toc-activity-onset-of-stimslide" class="nav-link" data-scroll-target="#activity-onset-of-stimslide"><span class="toc-section-number">1.2.2</span>  Activity: Onset of StimSlide</a></li>
+  <li><a href="#activity-combine-origins" id="toc-activity-combine-origins" class="nav-link" data-scroll-target="#activity-combine-origins"><span class="toc-section-number">1.2.3</span>  Activity: Combine origins</a></li>
+  <li><a href="#activity-time-align" id="toc-activity-time-align" class="nav-link" data-scroll-target="#activity-time-align"><span class="toc-section-number">1.2.4</span>  Activity: Time-align</a></li>
+  </ul></li>
+  <li><a href="#save-the-data" id="toc-save-the-data" class="nav-link" data-scroll-target="#save-the-data"><span class="toc-section-number">1.3</span>  Save the data</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title d-none d-lg-block"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Import, epoching, and time-alignment</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    
+  </div>
+  
+
+</header>
+
+<p>The overall task here is to scrape out the data we want to use from each trial (epoching) and align the frame counters for all trials to the disambiguation point for the particular audio stimulus that was played on that trial (time-alignment). In other words, the disambiguation point should be the temporal “origin” (zero point) for the timeline on each trial.</p>
+<p><img src="img/epoching.png" class="img-fluid"></p>
+<section id="data-import" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="data-import"><span class="header-section-number">1.1</span> Data import</h2>
+<p>For the first part of pre-processing, we will load the eye data into our R session using functions from the <strong><code>{readr}</code></strong> package, which is one of many packages that is part of the <strong><code>{tidyverse}</code></strong> meta-package. The <code>.gazedata</code> files from the Tobii eyetracking system are in <code>.tsv</code> or <strong>T</strong>ab <strong>S</strong>eparated <strong>V</strong>alues format, for which we use <code>read_tsv()</code>.</p>
+<p>Before we can perform epoching and time-alignment, we have to import and clean up the <code>.gazedata</code> files. These are 42 adult data files and 41 child data files located in the <code>adult</code> and <code>child</code> subdirectories of <code>data-raw/</code>. These files follow the naming convention <code>data-raw/adult/sub_XXX.gazedata</code> and <code>data-raw/child/sub_XXX.gazedata</code> where the <code>XXX</code> part of the filename the unique integer identifying each subject, which corresponds to <code>sub_id</code> in the <code>subjects</code> table.</p>
+<p>The raw gazedata files include a lot of unnecessary information. We’ll need to scrape out the data that we need and convert the <code>XXX</code> value from the filename into a <code>sub_id</code> variable in the resulting table. The source files have the format below.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 5%">
+<col style="width: 74%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">variable</th>
+<th style="text-align: left;">type</th>
+<th style="text-align: left;">description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">ID</td>
+<td style="text-align: left;"><int></int></td>
+<td style="text-align: left;">arbitrary value uniquely identifying each frame within subject</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">TETTime</td>
+<td style="text-align: left;"><dbl></dbl></td>
+<td style="text-align: left;">(ignored)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">RTTime</td>
+<td style="text-align: left;"><int></int></td>
+<td style="text-align: left;">(ignored)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">CursorX</td>
+<td style="text-align: left;"><int></int></td>
+<td style="text-align: left;">horizontal point of gaze in pixels</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">CursorY</td>
+<td style="text-align: left;"><int></int></td>
+<td style="text-align: left;">vertical point of gaze in pixels</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">TimestampSec</td>
+<td style="text-align: left;"><int></int></td>
+<td style="text-align: left;">timestamp in seconds</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">TimestampMicrosec</td>
+<td style="text-align: left;"><int></int></td>
+<td style="text-align: left;">millisecond portion of timestamp (cycles around)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">XGazePosLeftEye</td>
+<td style="text-align: left;"><dbl></dbl></td>
+<td style="text-align: left;">(ignored)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">YGazePosLeftEye</td>
+<td style="text-align: left;"><dbl></dbl></td>
+<td style="text-align: left;">(ignored)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">XCameraPosLeftEye</td>
+<td style="text-align: left;"><dbl></dbl></td>
+<td style="text-align: left;">(ignored)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">YCameraPosLeftEye</td>
+<td style="text-align: left;"><dbl></dbl></td>
+<td style="text-align: left;">(ignored)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">DiameterPupilLeftEye</td>
+<td style="text-align: left;"><dbl></dbl></td>
+<td style="text-align: left;">(ignored)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">DistanceLeftEye</td>
+<td style="text-align: left;"><dbl></dbl></td>
+<td style="text-align: left;">(ignored)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ValidityLeftEye</td>
+<td style="text-align: left;"><int></int></td>
+<td style="text-align: left;">(ignored)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">XGazePosRightEye</td>
+<td style="text-align: left;"><dbl></dbl></td>
+<td style="text-align: left;">(ignored)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">YGazePosRightEye</td>
+<td style="text-align: left;"><dbl></dbl></td>
+<td style="text-align: left;">(ignored)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">XCameraPosRightEye</td>
+<td style="text-align: left;"><dbl></dbl></td>
+<td style="text-align: left;">(ignored)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">YCameraPosRightEye</td>
+<td style="text-align: left;"><dbl></dbl></td>
+<td style="text-align: left;">(ignored)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">DiameterPupilRightEye</td>
+<td style="text-align: left;"><dbl></dbl></td>
+<td style="text-align: left;">(ignored)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">DistanceRightEye</td>
+<td style="text-align: left;"><dbl></dbl></td>
+<td style="text-align: left;">(ignored)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ValidityRightEye</td>
+<td style="text-align: left;"><int></int></td>
+<td style="text-align: left;">(ignored)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">TrialId</td>
+<td style="text-align: left;"><int></int></td>
+<td style="text-align: left;">arbitrary value uniquely identifying each trial within a subject (same as t_id)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">UserDefined_1</td>
+<td style="text-align: left;"><chr></chr></td>
+<td style="text-align: left;">phase of the trial (Fixation, Preview, StimSlide)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<section id="activity-one-subject" class="level3" data-number="1.1.1">
+<h3 data-number="1.1.1" class="anchored" data-anchor-id="activity-one-subject"><span class="header-section-number">1.1.1</span> Activity: One Subject</h3>
+<p>Read in the Tobii eyetracking data for a single subject from the datafile <code>data-raw/adult/sub_003.gazedata</code>, and convert it to the format below.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 16,658 × 7
+   sub_id  t_id  f_id         sec     x     y phase  
+    &lt;int&gt; &lt;int&gt; &lt;int&gt;       &lt;dbl&gt; &lt;int&gt; &lt;int&gt; &lt;chr&gt;  
+ 1      3     1   145 1317141127.   666   521 Preview
+ 2      3     1   146 1317141127.   649   442 Preview
+ 3      3     1   147 1317141127.   618   507 Preview
+ 4      3     1   148 1317141127.   645   471 Preview
+ 5      3     1   149 1317141127.   632   471 Preview
+ 6      3     1   150 1317141127.   645   536 Preview
+ 7      3     1   151 1317141127.   651   474 Preview
+ 8      3     1   152 1317141127.   643   541 Preview
+ 9      3     1   153 1317141127.   628   581 Preview
+10      3     1   154 1317141127.   643   532 Preview
+# … with 16,648 more rows</code></pre>
+</div>
+</div>
+<p>Here, we have renamed <code>TrialId</code> to <code>t_id</code>, which is the name it takes throughout the rest of the database. We have also renamed <code>CursorX</code> and <code>CursorY</code> to <code>x</code> and <code>y</code> respectively. We have also renamed <code>ID</code> to <code>f_id</code> (frame id) and <code>UserDefined_1</code> to <code>phase</code>. We also exclude any frames from the phase where <code>UserDefined_1 == "Fixation"</code>, because these frames are not informative, and doing so reduces the size of the data we need to import.</p>
+<div class="callout-tip callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Hint: Importing only those columns you need
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Use the <code>col_types</code> argument to <code>read_tsv()</code> and the <code>cols_only()</code> specification.</p>
+<p>For instance, something like:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read_tsv</span>(<span class="st">"data-raw/adult/sub_003.gazedata"</span>,</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>         <span class="at">col_types =</span> <span class="fu">cols_only</span>(<span class="at">ID =</span> <span class="fu">col_integer</span>(),</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>                              <span class="co"># [..etc]</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>                              ),</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>         <span class="co">#.. other args to read_tsv,</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>         )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Type <code>?readr::cols_only</code> in the console to learn more about specifying columns during data import.</p>
+</div>
+</div>
+</div>
+<div class="callout-tip callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Hint: Extracting the subject id number
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>You can use the <code>id</code> argument to <code>read_tsv()</code> to specify the name of a variable in the resulting data frame that has the filename as its value.</p>
+<p>You can then create a new variable using <code>mutate()</code> that extracts the <code>XXX</code> substring (positions 20-22 of the string) and then converts it to an integer.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read_tsv</span>(<span class="st">"data-raw/adult/sub_003.gazedata"</span>,</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>         <span class="at">id =</span> <span class="st">"filename"</span>,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>         <span class="co"># other args to read_tsv()...</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>         ) <span class="sc">%&gt;%</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">sub_id =</span> <span class="fu">substr</span>(filename, <span class="dv">20</span>, <span class="dv">22</span>) <span class="sc">%&gt;%</span> <span class="fu">as.integer</span>()) <span class="co"># %&gt;%</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="do">## rest of your pipeline..</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="callout-important callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"tidyverse"</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="do">## make sure that your working directory is properly set!</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">read_tsv</span>(<span class="st">"data-raw/adult/sub_003.gazedata"</span>,</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">col_types =</span> <span class="fu">cols_only</span>(<span class="at">ID =</span> <span class="fu">col_integer</span>(),</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>                               <span class="at">TrialId =</span> <span class="fu">col_integer</span>(),</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>                               <span class="at">CursorX =</span> <span class="fu">col_integer</span>(),</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>                               <span class="at">CursorY =</span> <span class="fu">col_integer</span>(),</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>                               <span class="at">TimestampSec =</span> <span class="fu">col_integer</span>(),</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>                               <span class="at">TimestampMicrosec =</span> <span class="fu">col_integer</span>(),</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>                               <span class="at">UserDefined_1 =</span> <span class="fu">col_character</span>()),</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>         <span class="at">id =</span> <span class="st">"filename"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="do">## convert XXX to sub_id</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">sub_id =</span> <span class="fu">substr</span>(filename, <span class="dv">20</span>, <span class="dv">22</span>) <span class="sc">%&gt;%</span> <span class="fu">as.integer</span>(),</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>         <span class="at">sec =</span> TimestampSec <span class="sc">+</span> TimestampMicrosec <span class="sc">/</span> <span class="dv">1000000</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(sub_id, <span class="at">t_id =</span> TrialId, <span class="at">f_id =</span> ID,</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>         sec, <span class="at">x =</span> CursorX, <span class="at">y =</span> CursorY,</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>         <span class="at">phase =</span> UserDefined_1) <span class="sc">%&gt;%</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(phase <span class="sc">!=</span> <span class="st">"Fixation"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="activity-all-subjects" class="level3" data-number="1.1.2">
+<h3 data-number="1.1.2" class="anchored" data-anchor-id="activity-all-subjects"><span class="header-section-number">1.1.2</span> Activity: All Subjects</h3>
+<p>Now adapt the code that you wrote above to load in <em>all</em> 83 into a single table, which should have the same format as for the data you imported for subject 3 above.</p>
+<div class="callout-tip callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Tip
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>The <code>readr</code> functions like <code>read_tsv()</code> make it easy to read in multiple files. All you need to do is to provide a vector of filenames as the first argument.</p>
+<p>For example, <code>read_tsv(c("file1.tsv", "file2.tsv"))</code> will read both <code>file1.tsv</code> and <code>file2.tsv</code> and bind together the rows imported from both files in the result.</p>
+</div>
+</div>
+</div>
+<div class="callout-tip callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Hint: How do I get a vector of all the files in a directory?
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>The <code>dir()</code> function for base R can be used to list files. Examples:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dir</span>(<span class="st">"data-raw"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "adult"              "child"              "locations.csv"     
+[4] "screens.csv"        "speech-timings.csv" "stimuli.csv"       
+[7] "subjects.csv"       "trials.csv"        </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>adults <span class="ot">&lt;-</span> <span class="fu">dir</span>(<span class="st">"data-raw/adult"</span>, <span class="at">full.names =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>adults</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "data-raw/adult/sub_001.gazedata" "data-raw/adult/sub_002.gazedata"
+ [3] "data-raw/adult/sub_003.gazedata" "data-raw/adult/sub_004.gazedata"
+ [5] "data-raw/adult/sub_005.gazedata" "data-raw/adult/sub_006.gazedata"
+ [7] "data-raw/adult/sub_007.gazedata" "data-raw/adult/sub_008.gazedata"
+ [9] "data-raw/adult/sub_009.gazedata" "data-raw/adult/sub_010.gazedata"
+[11] "data-raw/adult/sub_011.gazedata" "data-raw/adult/sub_012.gazedata"
+[13] "data-raw/adult/sub_013.gazedata" "data-raw/adult/sub_014.gazedata"
+[15] "data-raw/adult/sub_015.gazedata" "data-raw/adult/sub_016.gazedata"
+[17] "data-raw/adult/sub_017.gazedata" "data-raw/adult/sub_018.gazedata"
+[19] "data-raw/adult/sub_019.gazedata" "data-raw/adult/sub_020.gazedata"
+[21] "data-raw/adult/sub_021.gazedata" "data-raw/adult/sub_022.gazedata"
+[23] "data-raw/adult/sub_023.gazedata" "data-raw/adult/sub_024.gazedata"
+[25] "data-raw/adult/sub_025.gazedata" "data-raw/adult/sub_026.gazedata"
+[27] "data-raw/adult/sub_027.gazedata" "data-raw/adult/sub_028.gazedata"
+[29] "data-raw/adult/sub_029.gazedata" "data-raw/adult/sub_030.gazedata"
+[31] "data-raw/adult/sub_031.gazedata" "data-raw/adult/sub_032.gazedata"
+[33] "data-raw/adult/sub_033.gazedata" "data-raw/adult/sub_034.gazedata"
+[35] "data-raw/adult/sub_035.gazedata" "data-raw/adult/sub_036.gazedata"
+[37] "data-raw/adult/sub_037.gazedata" "data-raw/adult/sub_039.gazedata"
+[39] "data-raw/adult/sub_040.gazedata" "data-raw/adult/sub_041.gazedata"
+[41] "data-raw/adult/sub_042.gazedata" "data-raw/adult/sub_043.gazedata"</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="callout-important callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell" data-hash="preprocessing_1_cache/html/import-eye-data_2a33dffaf1b6c9c932bf8c45b1caec58">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="do">## get .gazedata filenames</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>adults <span class="ot">&lt;-</span> <span class="fu">dir</span>(<span class="st">"data-raw/adult"</span>, <span class="at">full.names =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>children <span class="ot">&lt;-</span> <span class="fu">dir</span>(<span class="st">"data-raw/child"</span>, <span class="at">full.names =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>edat <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(<span class="fu">c</span>(adults, children),</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>                 <span class="at">col_types =</span> <span class="fu">cols_only</span>(<span class="at">ID =</span> <span class="fu">col_integer</span>(),</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">TrialId =</span> <span class="fu">col_integer</span>(),</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">CursorX =</span> <span class="fu">col_integer</span>(),</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">CursorY =</span> <span class="fu">col_integer</span>(),</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">TimestampSec =</span> <span class="fu">col_integer</span>(),</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">TimestampMicrosec =</span> <span class="fu">col_integer</span>(),</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">UserDefined_1 =</span> <span class="fu">col_character</span>()),</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>                 <span class="at">id =</span> <span class="st">"filename"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">sub_id =</span> <span class="fu">substr</span>(filename, <span class="dv">20</span>, <span class="dv">22</span>) <span class="sc">%&gt;%</span> <span class="fu">as.integer</span>(),</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>         <span class="at">sec =</span> TimestampSec <span class="sc">+</span> TimestampMicrosec <span class="sc">/</span> <span class="dv">1000000</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(sub_id, <span class="at">t_id =</span> TrialId, <span class="at">f_id =</span> ID,</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>         sec, <span class="at">x =</span> CursorX, <span class="at">y =</span> CursorY,</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>         <span class="at">phase =</span> UserDefined_1) <span class="sc">%&gt;%</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(phase <span class="sc">!=</span> <span class="st">"Fixation"</span>)</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>edat</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1,899,013 × 7
+   sub_id  t_id  f_id         sec     x     y phase  
+    &lt;int&gt; &lt;int&gt; &lt;int&gt;       &lt;dbl&gt; &lt;int&gt; &lt;int&gt; &lt;chr&gt;  
+ 1      1     1   272 1317113393.   628   523 Preview
+ 2      1     1   273 1317113393.   634   529 Preview
+ 3      1     1   274 1317113393.   633   519 Preview
+ 4      1     1   275 1317113393.   644   531 Preview
+ 5      1     1   276 1317113393.   637   520 Preview
+ 6      1     1   277 1317113393.   635   515 Preview
+ 7      1     1   278 1317113393.   636   519 Preview
+ 8      1     1   279 1317113393.   638   518 Preview
+ 9      1     1   280 1317113393.   642   519 Preview
+10      1     1   281 1317113393.   638   518 Preview
+# … with 1,899,003 more rows</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="epoching-and-time-alignment" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="epoching-and-time-alignment"><span class="header-section-number">1.2</span> Epoching and time-alignment</h2>
+<p>The Tobii eyetracker recorded data at a rate of 60 Hertz (i.e., 60 frames per second, or one frame every 1/60th of a second.) For each trial, the frame counter (<code>ID</code>, which we renamed to <code>f_id</code>) starts at 1 and increments every frame. This is not very useful because we need to know when certain stimulus events occurred, and these will take place at a different frame number for every trial, depending on the timing of the speech events of the stimulus for that trial. We need to re-define the ‘origin’ of the eye-tracking data. In this study, we used the ‘disambiguation point’, which is the point in the word where the signal distinguishes between two competing lexical items (e.g., candy and candle).</p>
+<p><img src="img/epoching.png" id="fig-epoching" class="img-fluid"></p>
+<p>As <span class="quarto-unresolved-ref">?fig-epoching</span> shows, each trial had three phases, a <code>Fixation</code>, <code>Preview</code>, and <code>StimSlide</code> phase, which are indexed by the variable <code>phase</code>. Playback of a soundfile with a pre-recorded speech stimulus began simultaneously with the onset of the <code>StimSlide</code> phase.</p>
+<p>For each trial (uniquely identified by <code>sub_id</code> and <code>t_id</code>), we are going to need to do two things to time-align the eye data to the disambiguation point.</p>
+<ol type="1">
+<li><p>Find out what sound was played and the timing of the disambiguation point within that soundfile, as measured from the start of the file.</p></li>
+<li><p>Figure out the frame number corresponding to the start of the <code>StimSlide</code> phase and then adjust by the amount calculated in the previous step.</p></li>
+</ol>
+<section id="activity-disambiguation-point" class="level3" data-number="1.2.1">
+<h3 data-number="1.2.1" class="anchored" data-anchor-id="activity-disambiguation-point"><span class="header-section-number">1.2.1</span> Activity: Disambiguation Point</h3>
+<p>Create the table below from the raw data, which has information about the onset of the disambiguation point for each trial. Store the table as <code>origin_adj</code>.</p>
+<p>You may wish to consult <a href="data-structure.html"><span>Appendix&nbsp;A</span></a> to see what tables the values in the table below have been are drawn from. You’ll need to import these tables into your session. All of these tables have the extension <code>.csv</code>, which indicates they are in <strong>C</strong>omma <strong>S</strong>eparated <strong>V</strong>alues format. The ideal way to import these files is to use <code>read_csv()</code> from the <strong><code>{readr}</code></strong> package.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5,644 × 4
+   sub_id  t_id sound          disambig_point
+    &lt;int&gt; &lt;int&gt; &lt;chr&gt;                   &lt;int&gt;
+ 1      1     1 Tpelican.wav             1171
+ 2      1     2 Tpumpkin.wav             1079
+ 3      1     3 pencil.wav                810
+ 4      1     4 paddle.wav                881
+ 5      1     6 Tbalcony.wav             1012
+ 6      1     7 Tnapkin.wav              1069
+ 7      1    11 Tflamingo.wav            1150
+ 8      1    13 Tangel.wav               1036
+ 9      1    14 Tparachute.wav           1046
+10      1    16 Tmushroom.wav            1062
+# … with 5,634 more rows</code></pre>
+</div>
+</div>
+<div class="callout-important callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-7" class="callout-7-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>trials <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data-raw/trials.csv"</span>,</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">col_types =</span> <span class="st">"iiiiii"</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>stimuli <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data-raw/stimuli.csv"</span>,</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>                    <span class="at">col_types =</span> <span class="st">"iiciccc"</span>)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>speech <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data-raw/speech-timings.csv"</span>,</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>                   <span class="at">col_types =</span> <span class="st">"ciii"</span>)</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>origin_adj <span class="ot">&lt;-</span> trials <span class="sc">%&gt;%</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(stimuli, <span class="st">"iv_id"</span>) <span class="sc">%&gt;%</span> <span class="co"># to get `sound`</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(sub_id, t_id, sound) <span class="sc">%&gt;%</span> </span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(speech, <span class="st">"sound"</span>) <span class="sc">%&gt;%</span> <span class="co"># to get the timings</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>article, <span class="sc">-</span>noun)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="activity-onset-of-stimslide" class="level3" data-number="1.2.2">
+<h3 data-number="1.2.2" class="anchored" data-anchor-id="activity-onset-of-stimslide"><span class="header-section-number">1.2.2</span> Activity: Onset of StimSlide</h3>
+<p>Now let’s do part 2, where we find the value of <code>f_id</code> for the first frame of eyedata for each trial following the onset of the <code>StimSlide</code> phase. We should have a table that looks like the one below, with one row for each trial, and where <code>f_ss</code> is the value of <code>f_id</code> for the earliest frame in the <code>StimSlide</code> phase.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 7,385 × 3
+   sub_id  t_id  f_ss
+    &lt;int&gt; &lt;int&gt; &lt;int&gt;
+ 1      1     1   338
+ 2      1     2   729
+ 3      1     3  1124
+ 4      1     4  1443
+ 5      1     5  1795
+ 6      1     6  2300
+ 7      1     7  2593
+ 8      1     8  3348
+ 9      1     9  3874
+10      1    10  4331
+# … with 7,375 more rows</code></pre>
+</div>
+</div>
+<div class="callout-important callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-8-contents" aria-controls="callout-8" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-8" class="callout-8-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="do">## figure out the f_id for the earliest StimSlide frame</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>origin_frames <span class="ot">&lt;-</span> edat <span class="sc">%&gt;%</span> </span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(phase <span class="sc">==</span> <span class="st">"StimSlide"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(sub_id, t_id) <span class="sc">%&gt;%</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">f_ss =</span> <span class="fu">min</span>(f_id),</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">.groups =</span> <span class="st">"drop"</span>)</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>origin_frames</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="activity-combine-origins" class="level3" data-number="1.2.3">
+<h3 data-number="1.2.3" class="anchored" data-anchor-id="activity-combine-origins"><span class="header-section-number">1.2.3</span> Activity: Combine origins</h3>
+<p>Now that we have the first frame of <code>StimSlide</code> and the adjustment we have to make in milliseconds for the disambiguation point, combine the tables and calculate <code>f_z</code>, which will represent the “zero points” in frames for each trial. Store the resulting table in <code>origins</code>.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5,643 × 5
+   sub_id  t_id  f_ss disambig_point   f_z
+    &lt;int&gt; &lt;int&gt; &lt;int&gt;          &lt;int&gt; &lt;int&gt;
+ 1      1     1   338           1171   408
+ 2      1     2   729           1079   794
+ 3      1     3  1124            810  1173
+ 4      1     4  1443            881  1496
+ 5      1     6  2300           1012  2361
+ 6      1     7  2593           1069  2657
+ 7      1    11  4699           1150  4768
+ 8      1    13  5395           1036  5457
+ 9      1    14  5893           1046  5956
+10      1    16  6811           1062  6875
+# … with 5,633 more rows</code></pre>
+</div>
+</div>
+<div class="callout-tip callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-9-contents" aria-controls="callout-9" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Hint: How to convert milliseconds to frames of eye data
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-9" class="callout-9-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>There are 60 frames per second, so 60 frames per 1000 milliseconds.</p>
+<p>So to convert from milliseconds to frames:</p>
+<p><code>f_z = 60 * ms / 1000</code></p>
+<p>For example, if you have 500 ms, then 60 * 500 / 1000 = 30.</p>
+</div>
+</div>
+</div>
+<div class="callout-important callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-10-contents" aria-controls="callout-10" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-10" class="callout-10-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>origins <span class="ot">&lt;-</span> origin_frames <span class="sc">%&gt;%</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(origin_adj, <span class="fu">c</span>(<span class="st">"sub_id"</span>, <span class="st">"t_id"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">f_z =</span> <span class="fu">round</span>(f_ss <span class="sc">+</span> <span class="dv">60</span> <span class="sc">*</span> disambig_point <span class="sc">/</span> <span class="dv">1000</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>           <span class="fu">as.integer</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>sound)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="activity-time-align" class="level3" data-number="1.2.4">
+<h3 data-number="1.2.4" class="anchored" data-anchor-id="activity-time-align"><span class="header-section-number">1.2.4</span> Activity: Time-align</h3>
+<p>Now we’re ready to calculate a new frame index on our eye data (<code>edat</code>), <code>f_c</code>, which is centered on the zero point, <code>f_z</code>. The resulting table should be called <code>epdat</code> and have the following structure.</p>
+<div class="cell" data-hash="preprocessing_1_cache/html/time-align-result_b4171dc0044fc4d21412d73930b04b06">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1,341,405 × 7
+   sub_id  t_id  f_id   f_z   f_c     x     y
+    &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt;
+ 1      1     1   272   408  -136   628   523
+ 2      1     1   273   408  -135   634   529
+ 3      1     1   274   408  -134   633   519
+ 4      1     1   275   408  -133   644   531
+ 5      1     1   276   408  -132   637   520
+ 6      1     1   277   408  -131   635   515
+ 7      1     1   278   408  -130   636   519
+ 8      1     1   279   408  -129   638   518
+ 9      1     1   280   408  -128   642   519
+10      1     1   281   408  -127   638   518
+# … with 1,341,395 more rows</code></pre>
+</div>
+</div>
+<div class="callout-important callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-11-contents" aria-controls="callout-11" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-11" class="callout-11-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>epdat <span class="ot">&lt;-</span> edat <span class="sc">%&gt;%</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(origins, <span class="fu">c</span>(<span class="st">"sub_id"</span>, <span class="st">"t_id"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">f_c =</span> f_id <span class="sc">-</span> f_z) <span class="sc">%&gt;%</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(sub_id, t_id, f_id, f_z, f_c, x, y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="save-the-data" class="level2" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="save-the-data"><span class="header-section-number">1.3</span> Save the data</h2>
+<p>We’ve reached a stopping point. We’ll want to save the epoched data so that we can use that as our starting point for the next preprocessing stage. We’ll remove the variables <code>f_id</code> and <code>f_z</code> because we no longer need them. We’ll also keep 1.5 seconds (90 frames) before and after the disambiguation point for each trial.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="do">## if we haven't made a "data-derived" directory, do so now</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">dir.exists</span>(<span class="st">"data-derived"</span>)) <span class="fu">dir.create</span>(<span class="st">"data-derived"</span>)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>epdat <span class="sc">%&gt;%</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(f_c <span class="sc">&gt;=</span> <span class="sc">-</span>90L, f_c <span class="sc">&lt;=</span> 90L) <span class="sc">%&gt;%</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>f_id, <span class="sc">-</span>f_z) <span class="sc">%&gt;%</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="at">file =</span> <span class="st">"data-derived/edat-epoched.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./index.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Background</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./preprocessing_2.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Mapping gaze to areas of interest</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+      <div class="nav-footer-center">Copyright 2022, Dale J. Barr. Content licensed under Creative Commons CC-BY-SA.</div>
+  </div>
+</footer>
+
+
+
+</body></html>
