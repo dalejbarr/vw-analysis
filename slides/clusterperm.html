@@ -1,21 +1,20 @@
 <!DOCTYPE html>
 <html lang="en"><head>
-<script src="intro_files/libs/clipboard/clipboard.min.js"></script>
-<script src="intro_files/libs/quarto-html/tabby.min.js"></script>
-<script src="intro_files/libs/quarto-html/popper.min.js"></script>
-<script src="intro_files/libs/quarto-html/tippy.umd.min.js"></script>
-<link href="intro_files/libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="intro_files/libs/quarto-html/quarto-html.min.css" rel="stylesheet" data-mode="light">
-<link href="intro_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+<script src="clusterperm_files/libs/clipboard/clipboard.min.js"></script>
+<script src="clusterperm_files/libs/quarto-html/tabby.min.js"></script>
+<script src="clusterperm_files/libs/quarto-html/popper.min.js"></script>
+<script src="clusterperm_files/libs/quarto-html/tippy.umd.min.js"></script>
+<link href="clusterperm_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="clusterperm_files/libs/quarto-html/quarto-html.min.css" rel="stylesheet" data-mode="light">
+<link href="clusterperm_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
   <meta name="generator" content="quarto-1.1.251">
 
-  <meta name="author" content="Dale Barr">
-  <title>Session 1: Introduction and Pre-processing</title>
+  <title>cluster-permutation analysis</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
-  <link rel="stylesheet" href="intro_files/libs/revealjs/dist/reset.css">
-  <link rel="stylesheet" href="intro_files/libs/revealjs/dist/reveal.css">
+  <link rel="stylesheet" href="clusterperm_files/libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="clusterperm_files/libs/revealjs/dist/reveal.css">
   <style>
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
@@ -28,76 +27,12 @@
       margin: 0 0.8em 0.2em -1.6em;
       vertical-align: middle;
     }
-    pre > code.sourceCode { white-space: pre; position: relative; }
-    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-    pre > code.sourceCode > span:empty { height: 1.2em; }
-    .sourceCode { overflow: visible; }
-    code.sourceCode > span { color: inherit; text-decoration: inherit; }
-    div.sourceCode { margin: 1em 0; }
-    pre.sourceCode { margin: 0; }
-    @media screen {
-    div.sourceCode { overflow: auto; }
-    }
-    @media print {
-    pre > code.sourceCode { white-space: pre-wrap; }
-    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-    }
-    pre.numberSource code
-      { counter-reset: source-line 0; }
-    pre.numberSource code > span
-      { position: relative; left: -4em; counter-increment: source-line; }
-    pre.numberSource code > span > a:first-child::before
-      { content: counter(source-line);
-        position: relative; left: -1em; text-align: right; vertical-align: baseline;
-        border: none; display: inline-block;
-        -webkit-touch-callout: none; -webkit-user-select: none;
-        -khtml-user-select: none; -moz-user-select: none;
-        -ms-user-select: none; user-select: none;
-        padding: 0 4px; width: 4em;
-        color: #aaaaaa;
-      }
-    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
-    div.sourceCode
-      { color: #003b4f; background-color: #f1f3f5; }
-    @media screen {
-    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-    }
-    code span { color: #003b4f; } /* Normal */
-    code span.al { color: #ad0000; } /* Alert */
-    code span.an { color: #5e5e5e; } /* Annotation */
-    code span.at { color: #657422; } /* Attribute */
-    code span.bn { color: #ad0000; } /* BaseN */
-    code span.bu { } /* BuiltIn */
-    code span.cf { color: #003b4f; } /* ControlFlow */
-    code span.ch { color: #20794d; } /* Char */
-    code span.cn { color: #8f5902; } /* Constant */
-    code span.co { color: #5e5e5e; } /* Comment */
-    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
-    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
-    code span.dt { color: #ad0000; } /* DataType */
-    code span.dv { color: #ad0000; } /* DecVal */
-    code span.er { color: #ad0000; } /* Error */
-    code span.ex { } /* Extension */
-    code span.fl { color: #ad0000; } /* Float */
-    code span.fu { color: #4758ab; } /* Function */
-    code span.im { color: #00769e; } /* Import */
-    code span.in { color: #5e5e5e; } /* Information */
-    code span.kw { color: #003b4f; } /* Keyword */
-    code span.op { color: #5e5e5e; } /* Operator */
-    code span.ot { color: #003b4f; } /* Other */
-    code span.pp { color: #ad0000; } /* Preprocessor */
-    code span.sc { color: #5e5e5e; } /* SpecialChar */
-    code span.ss { color: #20794d; } /* SpecialString */
-    code span.st { color: #20794d; } /* String */
-    code span.va { color: #111111; } /* Variable */
-    code span.vs { color: #20794d; } /* VerbatimString */
-    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
-  <link rel="stylesheet" href="intro_files/libs/revealjs/dist/theme/quarto.css" id="theme">
-  <link href="intro_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
-  <link href="intro_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
-  <link href="intro_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
-  <link href="intro_files/libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <link rel="stylesheet" href="clusterperm_files/libs/revealjs/dist/theme/quarto.css" id="theme">
+  <link href="clusterperm_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="clusterperm_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="clusterperm_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="clusterperm_files/libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
   <style type="text/css">
 
   .callout {
@@ -388,263 +323,77 @@
     <div class="slides">
 
 <section id="title-slide" class="center">
-  <h1 class="title">Session 1: Introduction and Pre-processing</h1>
-  <p class="author">Dale Barr</p>
+  <h1 class="title">cluster-permutation analysis</h1>
 </section>
 
-<section id="why-be-reproducible" class="slide level2">
-<h2>Why be reproducible?</h2>
+<section id="why-not-growth-curves" class="slide level2">
+<h2>why not growth curves?</h2>
 <ul>
-<li>many, many analytical choices to make</li>
-<li>easier to spot and correct errors</li>
-<li>analysis can be audited/verified by others</li>
-<li>it’s more efficient (in the long run…)</li>
+<li>great for:
+<ul>
+<li>investigating dynamics of single word processing</li>
+</ul></li>
+<li>not great for:
+<ul>
+<li>multi-word/varying length expressions</li>
+<li>dealing with asymptotic/abrupt onset effects</li>
+<li>testing hypotheses about relative effect timing</li>
+<li>accounting for temporal autocorrelation</li>
+</ul></li>
 </ul>
 </section>
-<section id="weighall-et-al.-2017" class="slide level2">
-<h2>Weighall et al.&nbsp;(2017)</h2>
-
-<img data-src="img/weighall_et-al_2017.jpg" class="r-stretch"></section>
-<section id="existing-competitors" class="slide level2">
-<h2>Existing competitors</h2>
-<div class="columns">
-<div class="column" style="width:60%;">
-<div class="quarto-figure quarto-figure-center">
-<figure>
-<p><img data-src="../img/weighall-existing-competitor.jpg"></p>
-<p></p><figcaption><em>“click on the candy”</em></figcaption><p></p>
-</figure>
-</div>
-</div><div class="column" style="width:40%;">
-<div class="cell">
-<div class="cell-output-display">
-<table>
-<thead>
-<tr class="header">
-<th style="text-align: left;">image</th>
-<th style="text-align: left;">role</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">candy</td>
-<td style="text-align: left;">target</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">candle</td>
-<td style="text-align: left;">critical (competitor)</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">lorry</td>
-<td style="text-align: left;">critical (unrelated)</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">(thing)</td>
-<td style="text-align: left;">novel</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">stamp</td>
-<td style="text-align: left;">existing</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</div>
-</div>
-</section>
-<section id="novel-competitors" class="slide level2">
-<h2>Novel competitors</h2>
-<div class="columns">
-<div class="column" style="width:60%;">
-<div class="quarto-figure quarto-figure-center">
-<figure>
-<p><img data-src="../img/weighall-novel-competitor.jpg"></p>
-<p></p><figcaption><em>“click on the biscuit”</em></figcaption><p></p>
-</figure>
-</div>
-</div><div class="column" style="width:40%;">
-<div class="cell">
-<div class="cell-output-display">
-<table>
-<thead>
-<tr class="header">
-<th style="text-align: left;">image</th>
-<th style="text-align: left;">role</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">biscuit</td>
-<td style="text-align: left;">target</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">biscal</td>
-<td style="text-align: left;">critical (competitor)</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">lorry</td>
-<td style="text-align: left;">critical (unrelated)</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">(thing)</td>
-<td style="text-align: left;">novel</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">stamp</td>
-<td style="text-align: left;">existing</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</div>
-</div>
-</section>
-<section id="weighall-et-al.-raw-data" class="slide level2">
-<h2>Weighall et al.&nbsp;raw data</h2>
-
-<img data-src="../img/database/data-raw.png" class="r-stretch"></section>
-<section id="end-goal" class="slide level2">
-<h2>End goal</h2>
-
-<img data-src="../img/existing-competition.png" class="r-stretch"></section>
-<section id="your-tools" class="slide level2">
-<h2>Your tools</h2>
-
-<img data-src="img/tidyverse.jpg" class="r-stretch"></section>
-<section id="the-wickham-six-one-table-verbs" class="slide level2">
-<h2>The “Wickham Six” one-table verbs</h2>
-<div class="cell">
-<div class="cell-output-display">
-<table>
-<thead>
-<tr class="header">
-<th style="text-align: left;">name</th>
-<th style="text-align: left;">description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">select</td>
-<td style="text-align: left;">include/exclude existing variables (columns)</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">filter</td>
-<td style="text-align: left;">include/exclude observations (rows)</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">mutate</td>
-<td style="text-align: left;">create a new variable</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">arrange</td>
-<td style="text-align: left;">re-order the observations (rows)</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">group_by</td>
-<td style="text-align: left;">change the unit of analysis</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">summarize</td>
-<td style="text-align: left;">calculate summary values</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</section>
-<section id="piping-things-together" class="slide level2">
-<h2>Piping things together</h2>
-<p>This…</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(<span class="st">"tidyverse"</span>)</span>
-<span id="cb1-2"><a href="#cb1-2"></a></span>
-<span id="cb1-3"><a href="#cb1-3"></a><span class="do">## humans of star wars</span></span>
-<span id="cb1-4"><a href="#cb1-4"></a>hosw1 <span class="ot">&lt;-</span> <span class="fu">filter</span>(starwars, species <span class="sc">==</span> <span class="st">"Human"</span>)</span>
-<span id="cb1-5"><a href="#cb1-5"></a>hosw2 <span class="ot">&lt;-</span> <span class="fu">select</span>(hosw1, name, height, homeworld)</span>
-<span id="cb1-6"><a href="#cb1-6"></a></span>
-<span id="cb1-7"><a href="#cb1-7"></a>hosw2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 35 × 3
-   name               height homeworld
-   &lt;chr&gt;               &lt;int&gt; &lt;chr&gt;    
- 1 Luke Skywalker        172 Tatooine 
- 2 Darth Vader           202 Tatooine 
- 3 Leia Organa           150 Alderaan 
- 4 Owen Lars             178 Tatooine 
- 5 Beru Whitesun lars    165 Tatooine 
- 6 Biggs Darklighter     183 Tatooine 
- 7 Obi-Wan Kenobi        182 Stewjon  
- 8 Anakin Skywalker      188 Tatooine 
- 9 Wilhuff Tarkin        180 Eriadu   
-10 Han Solo              180 Corellia 
-# … with 25 more rows</code></pre>
-</div>
-</div>
+<section id="bin-by-bin-analyses" class="slide level2">
+<h2>bin-by-bin analyses</h2>
+<p>One strategy is to break the data up into bins and test effects at each bin (e.g., 200-400, 400-600, 600-800, etc.)</p>
+<p>Problems: - bin size arbitrary - need to correct for multiple testing without destroying power</p>
 </section>
 <section class="slide level2">
 
-<p>…can be done more easily like this.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>starwars <span class="sc">%&gt;%</span></span>
-<span id="cb3-2"><a href="#cb3-2"></a>  <span class="fu">filter</span>(species <span class="sc">==</span> <span class="st">"Human"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb3-3"><a href="#cb3-3"></a>  <span class="fu">select</span>(name, height, homeworld)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 35 × 3
-   name               height homeworld
-   &lt;chr&gt;               &lt;int&gt; &lt;chr&gt;    
- 1 Luke Skywalker        172 Tatooine 
- 2 Darth Vader           202 Tatooine 
- 3 Leia Organa           150 Alderaan 
- 4 Owen Lars             178 Tatooine 
- 5 Beru Whitesun lars    165 Tatooine 
- 6 Biggs Darklighter     183 Tatooine 
- 7 Obi-Wan Kenobi        182 Stewjon  
- 8 Anakin Skywalker      188 Tatooine 
- 9 Wilhuff Tarkin        180 Eriadu   
-10 Han Solo              180 Corellia 
-# … with 25 more rows</code></pre>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><img data-src="img/cbt.jpg"></p>
+</div><div class="column" style="width:50%;">
+<ul>
+<li>detect clusters of time where effect is significant</li>
+<li>derive NHD by data permutation</li>
+</ul>
 </div>
 </div>
+
+<aside><div>
+<p>Bullmore et al.&nbsp;(1999); Maris &amp; Oostenveld (2007)</p>
+</div></aside></section>
+<section id="logic-pseudocode" class="slide level2">
+<h2>logic (pseudocode)</h2>
+<pre><code>perform bin-by-bin analysis on original data
+
+detect clusters
+
+for each cluster:
+  calculate cluster mass statistic (CMS)
+
+for each factor (IV):
+  for a large number of runs:
+    permute data while respecting exchangeability under H0
+    detect clusters
+    store maximum CMS
+  calculate p-values using maximum CMS distributions</code></pre>
 </section>
-<section id="the-ubiquitous-inner_join" class="slide level2">
-<h2>The Ubiquitous <code>inner_join()</code></h2>
-<p>When you have values scattered across tables, use <code>inner_join()</code> to join them together!</p>
-<p><strong>Demo: which image was clicked on each trial?</strong></p>
-</section>
-<section id="pre-processing-tasks" class="slide level2">
-<h2>Pre-processing tasks</h2>
-<ol type="1">
-<li>Import</li>
-<li>Epoching and time-alignment</li>
-<li>Map point-of-gaze to areas of interest</li>
-<li>Deal with trial dropouts</li>
-</ol>
-</section>
-<section id="import" class="slide level2">
-<h2>1. Import</h2>
+<section class="slide level2">
 
-<img data-src="../table-images/eye-data.png" class="r-stretch"></section>
-<section id="epoching-and-time-alignment" class="slide level2">
-<h2>2. Epoching and time-alignment</h2>
-
-<img data-src="../img/epoching.png" class="r-stretch"></section>
-<section id="mapping-pog-to-aoi" class="slide level2">
-<h2>3. Mapping POG to AOI</h2>
-
-<img data-src="../img/screens.png" class="r-stretch"></section>
-<section id="trial-dropouts" class="slide level2">
-<h2>4. Trial dropouts</h2>
-
-<img data-src="img/trial-dropouts.jpg" class="r-stretch"></section>
-<section id="analysis" class="slide level2">
-<h2>Analysis</h2>
-<ol type="1">
-<li>Plotting</li>
-<li>Polynomial regression</li>
-<li>Cluster-permutation analysis</li>
-</ol>
+<div class="callout callout-warning callout-captioned callout-style-default">
+<div class="callout-body">
+<div class="callout-caption">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Warning</strong></p>
+</div>
+<div class="callout-content">
+<p>The logic of permutation tests is appealing, but you can really get into trouble very easily trying to apply it to multilevel data. There is a critical assumption that you need to ensure is honored, which is that all exchanges you make when generating the null-hypothesis distribution are legitimate exchanges under H0. To state this differently, each randomly re-labeled dataset should be one that could have existed had the experiment gone differently, but didn’t.</p>
+</div>
+</div>
+</div>
 <div class="footer footer-default">
 
 </div>
@@ -653,19 +402,19 @@
   </div>
 
   <script>window.backupDefine = window.define; window.define = undefined;</script>
-  <script src="intro_files/libs/revealjs/dist/reveal.js"></script>
+  <script src="clusterperm_files/libs/revealjs/dist/reveal.js"></script>
   <!-- reveal.js plugins -->
-  <script src="intro_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
-  <script src="intro_files/libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
-  <script src="intro_files/libs/revealjs/plugin/reveal-menu/menu.js"></script>
-  <script src="intro_files/libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
-  <script src="intro_files/libs/revealjs/plugin/quarto-support/support.js"></script>
+  <script src="clusterperm_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="clusterperm_files/libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="clusterperm_files/libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="clusterperm_files/libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="clusterperm_files/libs/revealjs/plugin/quarto-support/support.js"></script>
   
 
-  <script src="intro_files/libs/revealjs/plugin/notes/notes.js"></script>
-  <script src="intro_files/libs/revealjs/plugin/search/search.js"></script>
-  <script src="intro_files/libs/revealjs/plugin/zoom/zoom.js"></script>
-  <script src="intro_files/libs/revealjs/plugin/math/math.js"></script>
+  <script src="clusterperm_files/libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="clusterperm_files/libs/revealjs/plugin/search/search.js"></script>
+  <script src="clusterperm_files/libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="clusterperm_files/libs/revealjs/plugin/math/math.js"></script>
   <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
 
   <script>
@@ -860,48 +609,6 @@
         ]
       });
     </script>
-    
-    <script>
-      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
-      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
-      // slide changes (different for each slide format).
-      (function () {
-        function fireSlideChanged(previousSlide, currentSlide) {
-
-          // dispatch for htmlwidgets
-          const event = window.document.createEvent("Event");
-          event.initEvent("slideenter", true, true);
-          window.document.dispatchEvent(event);
-
-          // dispatch for shiny
-          if (window.jQuery) {
-            if (previousSlide) {
-              window.jQuery(previousSlide).trigger("hidden");
-            }
-            if (currentSlide) {
-              window.jQuery(currentSlide).trigger("shown");
-            }
-          }
-        }
-
-        // hookup for reveal
-        if (window.Reveal) {
-          window.Reveal.addEventListener("slidechanged", function(event) {
-            fireSlideChanged(event.previousSlide, event.currentSlide);
-          });
-        }
-
-        // hookup for slidy
-        if (window.w3c_slidy) {
-          window.w3c_slidy.add_observer(function (slide_num) {
-            // slide_num starts at position 1
-            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
-          });
-        }
-
-      })();
-    </script>
-
     <script id="quarto-html-after-body" type="application/javascript">
     window.document.addEventListener("DOMContentLoaded", function (event) {
       const toggleBodyColorMode = (bsSheetEl) => {

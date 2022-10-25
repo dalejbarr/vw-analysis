@@ -4,6 +4,13 @@ author: "Dale Barr"
 format: revealjs
 ---
 
+## Why be reproducible?
+
+- many, many analytical choices to make
+- easier to spot and correct errors
+- analysis can be audited/verified by others
+- it's more efficient (in the long run...)
+
 ## Weighall et al. (2017)
 
 ![](img/weighall_et-al_2017.jpg)
@@ -72,6 +79,59 @@ tribble(~image, ~role,
 
 ## End goal
 
+![](../img/existing-competition.png)
+
+## Your tools
+
+![](img/tidyverse.jpg)
+
+## The "Wickham Six" one-table verbs
+
+```{r}
+#| echo: false
+tribble(~ name, ~description,
+        "select", "include/exclude existing variables (columns)",
+        "filter", "include/exclude observations (rows)",
+        "mutate", "create a new variable",
+        "arrange", "re-order the observations (rows)",
+        "group_by", "change the unit of analysis",
+        "summarize", "calculate summary values") %>%
+  knitr::kable()
+```
+
+## Piping things together
+
+This...
+
+```{r}
+#| message: false
+#| echo: true
+library("tidyverse")
+
+## humans of star wars
+hosw1 <- filter(starwars, species == "Human")
+hosw2 <- select(hosw1, name, height, homeworld)
+
+hosw2
+```
+
+---
+
+...can be done more easily like this.
+
+```{r}
+#| echo: true
+starwars %>%
+  filter(species == "Human") %>%
+  select(name, height, homeworld)
+```
+
+
+## The Ubiquitous `inner_join()`
+
+When you have values scattered across tables, use `inner_join()` to join them together!
+
+**Demo: which image was clicked on each trial?**
 
 
 ## Pre-processing tasks
@@ -83,8 +143,22 @@ tribble(~image, ~role,
 
 ## 1. Import
 
+![](../table-images/eye-data.png)
+
 ## 2. Epoching and time-alignment
+
+![](../img/epoching.png)
 
 ## 3. Mapping POG to AOI
 
+![](../img/screens.png)
+
 ## 4. Trial dropouts
+
+![](img/trial-dropouts.jpg)
+
+## Analysis
+
+1. Plotting
+2. Polynomial regression
+3. Cluster-permutation analysis

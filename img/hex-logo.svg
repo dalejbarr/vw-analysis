@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
+   sodipodi:docname="hex-logo.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#cccccc"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="1"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="0.76969697"
+     inkscape:cx="378.07087"
+     inkscape:cy="561.90945"
+     inkscape:window-width="1920"
+     inkscape:window-height="1051"
+     inkscape:window-x="-9"
+     inkscape:window-y="-9"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="BACK"
+     style="display:inline">
+    <path
+       sodipodi:type="star"
+       style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-opacity:1"
+       id="path184"
+       inkscape:flatsided="true"
+       sodipodi:sides="6"
+       sodipodi:cx="38.15625"
+       sodipodi:cy="41.59375"
+       sodipodi:r1="99.515472"
+       sodipodi:r2="49.757736"
+       sodipodi:arg1="0.78539816"
+       sodipodi:arg2="1.3089969"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="m 108.52432,111.96182 -96.124569,25.7565 -70.368066,-70.36807 25.756499,-96.124565 96.124565,-25.7565 70.368061,70.368065 z"
+       transform="rotate(-14.771186,348.6777,-190.50311)"
+       inkscape:export-filename="favicon.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+  </g>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       sodipodi:type="star"
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-opacity:1"
+       id="path1729"
+       inkscape:flatsided="true"
+       sodipodi:sides="6"
+       sodipodi:cx="38.15625"
+       sodipodi:cy="41.59375"
+       sodipodi:r1="99.515472"
+       sodipodi:r2="49.757736"
+       sodipodi:arg1="0.78539816"
+       sodipodi:arg2="1.3089969"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="m 108.52432,111.96182 -96.124569,25.7565 -70.368066,-70.36807 25.756499,-96.124565 96.124565,-25.7565 70.368061,70.368065 z"
+       transform="matrix(0.87858472,-0.23165947,0.23165947,0.87858472,64.434664,85.389371)" />
+    <ellipse
+       style="fill:#00dcff;fill-opacity:1;stroke:#000000;stroke-width:0.418766;stroke-opacity:1"
+       id="path3237"
+       cx="121.57918"
+       cy="98.072937"
+       rx="38.079365"
+       ry="36.360615" />
+    <ellipse
+       style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.264999;stroke-opacity:1"
+       id="path3291"
+       cx="126.67187"
+       cy="93.499992"
+       rx="20.796875"
+       ry="18.5625" />
+    <path
+       style="fill:#000000;fill-opacity:1;stroke:#e10000;stroke-width:0.765;stroke-opacity:1;stroke-dasharray:none"
+       d="M 51.562499,92.812498 H 175.3125"
+       id="path3347" />
+    <path
+       style="fill:#000000;fill-opacity:1;stroke:#e10000;stroke-width:0.765;stroke-dasharray:none;stroke-opacity:1"
+       d="M 128.5625,149.1875 V 45.718751"
+       id="path3403" />
+    <ellipse
+       style="fill:#e9f100;fill-opacity:1;stroke:none;stroke-width:0.765;stroke-dasharray:none;stroke-opacity:1"
+       id="path3457"
+       cx="121.85938"
+       cy="105.35937"
+       rx="3.609375"
+       ry="2.578125" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:39.4654px;font-family:Calibri;-inkscape-font-specification:'Calibri, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#808080;fill-opacity:1;stroke:none;stroke-width:1.83514;stroke-dasharray:none;stroke-opacity:1"
+       x="49.931652"
+       y="163.65669"
+       id="text3617"><tspan
+         sodipodi:role="line"
+         id="tspan3619"
+         x="49.931652"
+         y="163.65669"
+         style="stroke-width:1.83514">vw-eye</tspan></text>
+  </g>
+</svg>

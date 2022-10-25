@@ -1,0 +1,94 @@
+---
+title: "Polynomial Regression"
+format: revealjs
+---
+
+## Polynomials
+
+Polynomial functions are very useful.
+
+::::{.columns}
+
+:::{.column-width="33%"}
+
+quadratic
+
+$Y = \beta_0 + \beta_1 t + \beta_2 t^2$
+
+:::
+
+:::{.column-width="33%"}
+
+cubic
+
+$Y = \beta_0 + \beta_1 t + \beta_2 t^2 + \beta_3 t^3$
+:::
+
+:::{.column-width="33%"}
+
+quartic
+
+$Y = \beta_0 + \beta_1 t + \beta_2 t^2 + \beta_3 t^3 + \beta_4 t^4$
+
+:::
+
+::::
+
+## Polynomials and vw-eyetracking
+
+![](img/barr-08.jpg)
+
+- Growth-curve analysis (Mirman et al., 2008)
+- Multilevel logistic regression (Barr, 2008)
+
+## Pros and cons
+
+- Pros
+  - Highly expressive and elegant
+  - Capture temporal dynamics
+  
+- Cons
+  - Don't really tell you 'when' something happens
+  - Complicated and unlikely to converge
+  
+## Types of polynomials
+
+::::{.columns}
+
+:::{.column width="50%"}
+Natural
+
+```{r}
+#| echo: true
+nat <- poly(0:5, degree = 3,
+            raw = TRUE)
+nat[, ]
+
+cor(nat) |> round(3)
+```
+
+:::
+
+:::{.column width="50%"}
+Orthogonal
+
+```{r}
+#| echo: true
+orth <- poly(0:5, degree = 3, 
+             raw = FALSE)
+orth[, ]
+
+cor(orth) |> round(3)
+```
+
+:::
+
+::::
+
+## How to choose the 'right' polynomial?
+
+- use theory (best)
+- use information criteria like AIC (ok)
+- use your eye (worst)
+
+But **always** check your model fit by plotting against the data.

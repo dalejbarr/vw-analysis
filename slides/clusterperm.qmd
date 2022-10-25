@@ -1,0 +1,67 @@
+---
+title: "cluster-permutation analysis"
+format: revealjs
+---
+
+## why not growth curves?
+
+- great for:
+  - investigating dynamics of single word processing
+- not great for:
+  - multi-word/varying length expressions
+  - dealing with asymptotic/abrupt onset effects
+  - testing hypotheses about relative effect timing
+  - accounting for temporal autocorrelation
+
+## bin-by-bin analyses
+
+One strategy is to break the data up into bins and test effects at each bin (e.g., 200-400, 400-600, 600-800, etc.)
+
+Problems:
+- bin size arbitrary
+- need to correct for multiple testing without destroying power
+
+---
+
+::::{.columns}
+
+:::{.column width="50%"}
+![](img/cbt.jpg)
+:::
+
+:::{.column width="50%"}
+- detect clusters of time where effect is significant
+- derive NHD by data permutation
+:::
+
+::::
+
+::: aside
+Bullmore et al. (1999); Maris & Oostenveld (2007)
+:::
+
+## logic (pseudocode)
+
+```
+perform bin-by-bin analysis on original data
+
+detect clusters
+
+for each cluster:
+  calculate cluster mass statistic (CMS)
+
+for each factor (IV):
+  for a large number of runs:
+    permute data while respecting exchangeability under H0
+    detect clusters
+    store maximum CMS
+  calculate p-values using maximum CMS distributions
+```
+
+---
+
+:::{.callout-warning}
+
+The logic of permutation tests is appealing, but you can really get into trouble very easily trying to apply it to multilevel data. There is a critical assumption that you need to ensure is honored, which is that all exchanges you make when generating the null-hypothesis distribution are legitimate exchanges under H0. To state this differently, each randomly re-labeled dataset should be one that could have existed had the experiment gone differently, but didn’t.
+
+:::
