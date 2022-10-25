@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.1.251">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Reproducibly Analysing Visual-World Eyetracking Data - 4&nbsp; Polynomial regression</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./clust-perm.html" rel="next">
+<link href="./plotting.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Polynomial regression</span></h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Reproducibly Analysing Visual-World Eyetracking Data</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/dalejbarr/vw-analysis/" title="Source Code" class="sidebar-tool px-1"><i class="bi bi-github"></i></a>
+    <a href="" title="Share" id="sidebar-tool-dropdown-0" class="sidebar-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-share"></i></a>
+    <ul class="dropdown-menu" aria-labelledby="sidebar-tool-dropdown-0">
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="https://twitter.com/intent/tweet?url=|url|">
+            <i class="bi bi-bi-twitter pe-1"></i>
+          Twitter
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="https://www.facebook.com/sharer/sharer.php?u=|url|">
+            <i class="bi bi-bi-facebook pe-1"></i>
+          Facebook
+          </a>
+        </li>
+    </ul>
+</div>
+    </div>
+      </div>
+      <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">Background</a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">Pre-processing</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./preprocessing_1.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Import, epoching, and time-alignment</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./preprocessing_2.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Mapping gaze to areas of interest</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">Visualization and Analysis</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./plotting.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Plot probabilities</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./polynomial.html" class="sidebar-item-text sidebar-link active"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Polynomial regression</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./clust-perm.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Cluster-permutation analysis</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">Appendices</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">References</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./data-structure.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">Structure of Weighall et al.&nbsp;(2017) raw data</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#binning-data" id="toc-binning-data" class="nav-link active" data-scroll-target="#binning-data"><span class="toc-section-number">4.1</span>  Binning data</a>
+  <ul class="collapse">
+  <li><a href="#activity-calculating-bins" id="toc-activity-calculating-bins" class="nav-link" data-scroll-target="#activity-calculating-bins"><span class="toc-section-number">4.1.1</span>  Activity: Calculating bins</a></li>
+  <li><a href="#activity-count-frames-in-bins" id="toc-activity-count-frames-in-bins" class="nav-link" data-scroll-target="#activity-count-frames-in-bins"><span class="toc-section-number">4.1.2</span>  Activity: Count frames in bins</a></li>
+  <li><a href="#activity-compute-probabilities" id="toc-activity-compute-probabilities" class="nav-link" data-scroll-target="#activity-compute-probabilities"><span class="toc-section-number">4.1.3</span>  Activity: Compute probabilities</a></li>
+  </ul></li>
+  <li><a href="#plot-mean-probabilities" id="toc-plot-mean-probabilities" class="nav-link" data-scroll-target="#plot-mean-probabilities"><span class="toc-section-number">4.2</span>  Plot mean probabilities</a>
+  <ul class="collapse">
+  <li><a href="#activity-mean-probabilities" id="toc-activity-mean-probabilities" class="nav-link" data-scroll-target="#activity-mean-probabilities"><span class="toc-section-number">4.2.1</span>  Activity: Mean probabilities</a></li>
+  </ul></li>
+  <li><a href="#polynomial-regression" id="toc-polynomial-regression" class="nav-link" data-scroll-target="#polynomial-regression"><span class="toc-section-number">4.3</span>  Polynomial regression</a>
+  <ul class="collapse">
+  <li><a href="#activity-quintic-model" id="toc-activity-quintic-model" class="nav-link" data-scroll-target="#activity-quintic-model"><span class="toc-section-number">4.3.1</span>  Activity: Quintic model</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title d-none d-lg-block"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Polynomial regression</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    
+  </div>
+  
+
+</header>
+
+<p>For more information about these approaches, see <span class="citation" data-cites="barr2008">Barr (<a href="references.html#ref-barr2008" role="doc-biblioref">2008</a>)</span> and <span class="citation" data-cites="mirman2008">Mirman, Dixon, and Magnuson (<a href="references.html#ref-mirman2008" role="doc-biblioref">2008</a>)</span>. It is also possible to use Generalized Additive Mixed Models (GAMMs), which can more easily accommodate arbitrary wiggly patterns and asymptotes, but that is beyond the current scope of this textbook.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"tidyverse"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>pog <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">"data-derived/pog_cts.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1,021,288 × 5
+   sub_id  t_id   f_c role   pad  
+    &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;fct&gt;  &lt;lgl&gt;
+ 1      1     1   -90 target FALSE
+ 2      1     1   -89 target FALSE
+ 3      1     1   -88 target FALSE
+ 4      1     1   -87 target FALSE
+ 5      1     1   -86 target FALSE
+ 6      1     1   -85 target FALSE
+ 7      1     1   -84 target FALSE
+ 8      1     1   -83 target FALSE
+ 9      1     1   -82 target FALSE
+10      1     1   -81 target FALSE
+# … with 1,021,278 more rows</code></pre>
+</div>
+</div>
+<section id="binning-data" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="binning-data"><span class="header-section-number">4.1</span> Binning data</h2>
+<p>We are going to follow the <span class="citation" data-cites="mirman2008">Mirman, Dixon, and Magnuson (<a href="references.html#ref-mirman2008" role="doc-biblioref">2008</a>)</span> approach. What we want to do first is to model the shape of the curve for existing competitors and see if it differs across children and adults.</p>
+<p>We will perform separate by-subject and by-item analysis. The reason why this is needed is that we have to first aggregate the data in order to deal with the frame-by-frame dependencies. A common approach is to aggregate frames into 50 ms bins (i.e.&nbsp;each having 3 frames).</p>
+<p>The general formula for binning data is:</p>
+<p><code>bin = floor( (frame + binsize/2) / binsize ) * binsize</code></p>
+<p>To bin things up into bins of 3 frames each, it would be</p>
+<p><code>bin = floor( (frame + 3/2) / 3) * 3</code></p>
+<p>To get a sense for how this formula works, try it out in the console.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>sample_frames <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">10</span><span class="sc">:</span><span class="dv">10</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">rbind</span>(<span class="at">frame =</span> sample_frames,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">bin =</span> <span class="fu">floor</span>( (sample_frames <span class="sc">+</span> <span class="dv">3</span><span class="sc">/</span><span class="dv">2</span>) <span class="sc">/</span> <span class="dv">3</span>) <span class="sc">*</span> <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13]
+frame  -10   -9   -8   -7   -6   -5   -4   -3   -2    -1     0     1     2
+bin     -9   -9   -9   -6   -6   -6   -3   -3   -3     0     0     0     3
+      [,14] [,15] [,16] [,17] [,18] [,19] [,20] [,21]
+frame     3     4     5     6     7     8     9    10
+bin       3     3     6     6     6     9     9     9</code></pre>
+</div>
+</div>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Why add half a bin?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Shifting frames forward by half of the binsize gives us more accurate bin numbering. To see why, consider the unshifted version to our shifted version above.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="do">## unshifted version</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rbind</span>(<span class="at">frame =</span> sample_frames,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>      <span class="at">bin =</span> <span class="fu">floor</span>(sample_frames <span class="sc">/</span> <span class="dv">3</span>) <span class="sc">*</span> <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13]
+frame  -10   -9   -8   -7   -6   -5   -4   -3   -2    -1     0     1     2
+bin    -12   -9   -9   -9   -6   -6   -6   -3   -3    -3     0     0     0
+      [,14] [,15] [,16] [,17] [,18] [,19] [,20] [,21]
+frame     3     4     5     6     7     8     9    10
+bin       3     3     3     6     6     6     9     9</code></pre>
+</div>
+</div>
+<p>Note that in the shifted version, the bin name corresponds to the median frame contained in the bin, whereas in the unshifted version, it corresponds to the first frame in the bin. For instance, bin 0, contains -1, 0, and 1 in the shifted version; in the unshifted version, it contains 0, 1, and 2.</p>
+</div>
+</div>
+<section id="activity-calculating-bins" class="level3" data-number="4.1.1">
+<h3 data-number="4.1.1" class="anchored" data-anchor-id="activity-calculating-bins"><span class="header-section-number">4.1.1</span> Activity: Calculating bins</h3>
+<p>Following the above logic, add the variables <code>bin</code> and <code>ms</code> (time in milliseconds for the corresponding bin) to the <code>pog</code> table. Save the result as <code>pog_calc</code>.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1,021,288 × 7
+   sub_id  t_id   f_c role   pad     bin    ms
+    &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;fct&gt;  &lt;lgl&gt; &lt;int&gt; &lt;int&gt;
+ 1      1     1   -90 target FALSE   -30  -500
+ 2      1     1   -89 target FALSE   -30  -500
+ 3      1     1   -88 target FALSE   -29  -483
+ 4      1     1   -87 target FALSE   -29  -483
+ 5      1     1   -86 target FALSE   -29  -483
+ 6      1     1   -85 target FALSE   -28  -466
+ 7      1     1   -84 target FALSE   -28  -466
+ 8      1     1   -83 target FALSE   -28  -466
+ 9      1     1   -82 target FALSE   -27  -450
+10      1     1   -81 target FALSE   -27  -450
+# … with 1,021,278 more rows</code></pre>
+</div>
+</div>
+<div class="callout-important callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>pog_calc <span class="ot">&lt;-</span> pog <span class="sc">%&gt;%</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">bin =</span> <span class="fu">floor</span>((f_c <span class="sc">+</span> <span class="dv">3</span><span class="sc">/</span><span class="dv">2</span>) <span class="sc">/</span> <span class="dv">3</span>) <span class="sc">%&gt;%</span> <span class="fu">as.integer</span>(),</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">ms =</span> <span class="fu">as.integer</span>(<span class="dv">1000</span> <span class="sc">*</span> bin <span class="sc">/</span> <span class="dv">60</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="activity-count-frames-in-bins" class="level3" data-number="4.1.2">
+<h3 data-number="4.1.2" class="anchored" data-anchor-id="activity-count-frames-in-bins"><span class="header-section-number">4.1.2</span> Activity: Count frames in bins</h3>
+<p>For the analysis below, we’re going to focus on the existing competitors (<code>ctype == "exist"</code>). Link the <code>pog_calc</code> data to information about subjects and conditions (<code>crit</code>) to create the following table, where <code>Y</code> is the number of frames observed for the particular combination of <code>sub_id</code>, <code>group</code>, <code>crit</code>, <code>ms</code>, and <code>role</code>. Save the resulting table as <code>pog_subj_y</code>.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 50,630 × 6
+   sub_id group crit          ms role         Y
+    &lt;int&gt; &lt;chr&gt; &lt;chr&gt;      &lt;int&gt; &lt;fct&gt;    &lt;int&gt;
+ 1      1 adult competitor  -500 target       6
+ 2      1 adult competitor  -500 critical     4
+ 3      1 adult competitor  -500 existing     4
+ 4      1 adult competitor  -500 novel        6
+ 5      1 adult competitor  -500 (blank)      0
+ 6      1 adult competitor  -483 target       7
+ 7      1 adult competitor  -483 critical     5
+ 8      1 adult competitor  -483 existing     8
+ 9      1 adult competitor  -483 novel        8
+10      1 adult competitor  -483 (blank)      2
+# … with 50,620 more rows</code></pre>
+</div>
+</div>
+<div class="callout-important callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>subjects <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data-raw/subjects.csv"</span>,</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>                     <span class="at">col_types =</span> <span class="st">"ic"</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>trials <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data-raw/trials.csv"</span>,</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>                   <span class="at">col_types =</span> <span class="st">"iiiiii"</span>)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>stimuli <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data-raw/stimuli.csv"</span>,</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>                    <span class="at">col_types =</span> <span class="st">"iiciccc"</span>)</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>pog_subj_y <span class="ot">&lt;-</span> pog_calc <span class="sc">%&gt;%</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(subjects, <span class="st">"sub_id"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(trials, <span class="fu">c</span>(<span class="st">"sub_id"</span>, <span class="st">"t_id"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(stimuli, <span class="fu">c</span>(<span class="st">"iv_id"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ctype <span class="sc">==</span> <span class="st">"exist"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(sub_id, group, crit, ms, role,</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>        <span class="at">name =</span> <span class="st">"Y"</span>, <span class="at">.drop =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="activity-compute-probabilities" class="level3" data-number="4.1.3">
+<h3 data-number="4.1.3" class="anchored" data-anchor-id="activity-compute-probabilities"><span class="header-section-number">4.1.3</span> Activity: Compute probabilities</h3>
+<p>Now add in variables <code>N</code>, the total number of frames for a given combination of <code>sub_id</code>, <code>group</code>, <code>crit</code>, and <code>ms</code>, and <code>p</code>, which is the probability (<code>Y / N</code>). Save the result as <code>pog_subj</code>.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 50,630 × 8
+   sub_id group crit          ms role         Y     N      p
+    &lt;int&gt; &lt;chr&gt; &lt;chr&gt;      &lt;int&gt; &lt;fct&gt;    &lt;int&gt; &lt;int&gt;  &lt;dbl&gt;
+ 1      1 adult competitor  -500 target       6    20 0.3   
+ 2      1 adult competitor  -500 critical     4    20 0.2   
+ 3      1 adult competitor  -500 existing     4    20 0.2   
+ 4      1 adult competitor  -500 novel        6    20 0.3   
+ 5      1 adult competitor  -500 (blank)      0    20 0     
+ 6      1 adult competitor  -483 target       7    30 0.233 
+ 7      1 adult competitor  -483 critical     5    30 0.167 
+ 8      1 adult competitor  -483 existing     8    30 0.267 
+ 9      1 adult competitor  -483 novel        8    30 0.267 
+10      1 adult competitor  -483 (blank)      2    30 0.0667
+# … with 50,620 more rows</code></pre>
+</div>
+</div>
+<div class="callout-tip callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Hint
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Recall what we did back in the plotting chapter, when creating <code>probs_exist</code> (a windowed mutate). You’ll need to do something like that again here.</p>
+</div>
+</div>
+</div>
+<div class="callout-important callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>pog_subj <span class="ot">&lt;-</span> pog_subj_y <span class="sc">%&gt;%</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(sub_id, group, crit, ms) <span class="sc">%&gt;%</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">N =</span> <span class="fu">sum</span>(Y),</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">p =</span> Y <span class="sc">/</span> N) <span class="sc">%&gt;%</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="plot-mean-probabilities" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="plot-mean-probabilities"><span class="header-section-number">4.2</span> Plot mean probabilities</h2>
+<section id="activity-mean-probabilities" class="level3" data-number="4.2.1">
+<h3 data-number="4.2.1" class="anchored" data-anchor-id="activity-mean-probabilities"><span class="header-section-number">4.2.1</span> Activity: Mean probabilities</h3>
+<p>Let’s now compute the mean probabilities for looks to the critical object across groups (adults, children) and condition (competitor, unrelated). First calculate the table <code>pog_means</code> below, then use it to create the graph below.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 244 × 4
+   group crit          ms probability
+   &lt;chr&gt; &lt;chr&gt;      &lt;int&gt;       &lt;dbl&gt;
+ 1 adult competitor  -500       0.137
+ 2 adult competitor  -483       0.140
+ 3 adult competitor  -466       0.131
+ 4 adult competitor  -450       0.129
+ 5 adult competitor  -433       0.135
+ 6 adult competitor  -416       0.137
+ 7 adult competitor  -400       0.135
+ 8 adult competitor  -383       0.138
+ 9 adult competitor  -366       0.137
+10 adult competitor  -350       0.129
+# … with 234 more rows</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="polynomial_files/figure-html/pog-means-plot-result-1.png" class="img-fluid" width="768"></p>
+</div>
+</div>
+<div class="callout-important callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>pog_means <span class="ot">&lt;-</span> pog_subj <span class="sc">%&gt;%</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(role <span class="sc">==</span> <span class="st">"critical"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(group, crit, ms) <span class="sc">%&gt;%</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">probability =</span> <span class="fu">mean</span>(p),</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">.groups =</span> <span class="st">"drop"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(pog_means, <span class="fu">aes</span>(ms, probability,</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">shape =</span> crit, <span class="at">color =</span> group)) <span class="sc">+</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> .<span class="dv">5</span>) <span class="sc">+</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">200</span>, <span class="dv">500</span>)) <span class="sc">+</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"top"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="polynomial-regression" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="polynomial-regression"><span class="header-section-number">4.3</span> Polynomial regression</h2>
+<p>Our task now is to fit the functions shown in the above figure using orthogonal polynomials. To avoid asymptotes, we will limit our analysis to 200 to 500 ms window, which is where the function seems to be changing.</p>
+<p>The first thing we will do is prepare the data, adding in <a href="https://talklab.psy.gla.ac.uk/tvw/catpred/">deviation-coded</a> numerical predictors for <code>group</code> (<code>G</code>) and <code>crit</code> (<code>C</code>).</p>
+<p>We will load in the R packages <strong><code>{lme4}</code></strong> for fitting linear mixed-effects models, and <strong><code>{polypoly}</code></strong> for working with orthogonal polynomials.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># if you don't have it, type</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages("polypoly") # in the console</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"polypoly"</span>)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"lme4"</span>)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>pog_prep <span class="ot">&lt;-</span> pog_subj <span class="sc">%&gt;%</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(role <span class="sc">==</span> <span class="st">"critical"</span>, ms <span class="sc">&gt;=</span> <span class="sc">-</span><span class="dv">200</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">G =</span> <span class="fu">if_else</span>(group <span class="sc">==</span> <span class="st">"child"</span>, <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>, <span class="sc">-</span><span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>),</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">C =</span> <span class="fu">if_else</span>(crit <span class="sc">==</span> <span class="st">"competitor"</span>, <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>, <span class="sc">-</span><span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>))</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="do">## check that we didn't make any errors</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>pog_prep <span class="sc">%&gt;%</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(group, crit, G, C)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 4
+  group crit           G     C
+  &lt;chr&gt; &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt;
+1 adult competitor  -0.5   0.5
+2 adult unrelated   -0.5  -0.5
+3 child competitor   0.5   0.5
+4 child unrelated    0.5  -0.5</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>pog_3 <span class="ot">&lt;-</span> pog_prep <span class="sc">%&gt;%</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">poly_add_columns</span>(ms, <span class="at">degree =</span> <span class="dv">3</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(sub_id, group, G, crit, C, ms, p, ms1, ms2, ms3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>mod_3 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(p <span class="sc">~</span> (ms1 <span class="sc">+</span> ms2 <span class="sc">+</span> ms3) <span class="sc">*</span> G <span class="sc">*</span> C <span class="sc">+</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>                ((ms1 <span class="sc">+</span> ms2 <span class="sc">+</span> ms3) <span class="sc">*</span> C <span class="sc">||</span> sub_id), </span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">data =</span> pog_3)</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mod_3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML ['lmerMod']
+Formula: p ~ (ms1 + ms2 + ms3) * G * C + ((1 | sub_id) + (0 + ms1 | sub_id) +  
+    (0 + ms2 | sub_id) + (0 + ms3 | sub_id) + (0 + C | sub_id) +  
+    (0 + ms1:C | sub_id) + (0 + ms2:C | sub_id) + (0 + ms3:C |      sub_id))
+   Data: pog_3
+
+REML criterion at convergence: -14758.4
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-3.2565 -0.5914 -0.0358  0.5113  5.4038 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ sub_id   (Intercept) 0.001249 0.03534 
+ sub_id.1 ms1         0.054835 0.23417 
+ sub_id.2 ms2         0.027294 0.16521 
+ sub_id.3 ms3         0.026226 0.16194 
+ sub_id.4 C           0.003698 0.06081 
+ sub_id.5 ms1:C       0.128879 0.35900 
+ sub_id.6 ms2:C       0.106783 0.32678 
+ sub_id.7 ms3:C       0.061623 0.24824 
+ Residual             0.005815 0.07625 
+Number of obs: 7138, groups:  sub_id, 83
+
+Fixed effects:
+             Estimate Std. Error t value
+(Intercept)  0.133722   0.003983  33.569
+ms1         -0.360730   0.026378 -13.676
+ms2         -0.188137   0.019077  -9.862
+ms3          0.134597   0.018736   7.184
+G            0.027162   0.007967   3.409
+C            0.030741   0.006915   4.445
+ms1:G        0.108453   0.052756   2.056
+ms2:G       -0.035381   0.038154  -0.927
+ms3:G       -0.088315   0.037473  -2.357
+ms1:C        0.058203   0.041147   1.414
+ms2:C       -0.193833   0.037774  -5.131
+ms3:C        0.045101   0.029710   1.518
+G:C          0.001996   0.013831   0.144
+ms1:G:C      0.068046   0.082295   0.827
+ms2:G:C      0.082218   0.075548   1.088
+ms3:G:C     -0.127579   0.059420  -2.147</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Correlation matrix not shown by default, as p = 16 &gt; 12.
+Use print(x, correlation=TRUE)  or
+    vcov(x)        if you need it</code></pre>
+</div>
+</div>
+<p>It converged! Before we get too excited, plot the model fitted values against the observed values to assess the quality of the fit.</p>
+<p>We need data to feed in to the <code>predict()</code> function in order to generate our fitted values. We’ll use <code>pog_means</code> for this purpose, adding in all of the predictors we need for the model, and restricting the range.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>pog_new <span class="ot">&lt;-</span> pog_means <span class="sc">%&gt;%</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ms <span class="sc">&gt;=</span> <span class="sc">-</span><span class="dv">200</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">G =</span> <span class="fu">if_else</span>(group <span class="sc">==</span> <span class="st">"child"</span>, <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>, <span class="sc">-</span><span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>),</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">C =</span> <span class="fu">if_else</span>(crit <span class="sc">==</span> <span class="st">"competitor"</span>, <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>, <span class="sc">-</span><span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now we are ready to feed it into <code>predict()</code> to generate fitted values. Note that we want to make predictions for the “typical” subject with random effects of zero, which requires setting <code>re.form = NA</code> for the <code>predict()</code> function. See <code>?predict.merMod</code> for details. We use <code>newdata = .</code> to send the current data from our pipeline as the argument for <code>newdata</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>fits_3 <span class="ot">&lt;-</span> pog_new <span class="sc">%&gt;%</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">poly_add_columns</span>(ms, <span class="at">degree =</span> <span class="dv">3</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">fitted =</span> <span class="fu">predict</span>(mod_3, <span class="at">newdata =</span> .,</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>                          <span class="at">re.form =</span> <span class="cn">NA</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now we plot the fitted values (lines) against observed (points).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(fits_3,</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(ms, probability,</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">shape =</span> crit, <span class="at">color =</span> group)) <span class="sc">+</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> fitted, <span class="at">linetype =</span> crit)) <span class="sc">+</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"top"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="polynomial_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid" width="768"></p>
+</div>
+</div>
+<p>Not good. We might want to try a higher order model. Alternatively, we can restrict the range further to get rid of asymptotic elements in the later part of the window. Let’s try the latter first because that’s fairly easy.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>pog_3b <span class="ot">&lt;-</span> pog_3 <span class="sc">%&gt;%</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">between</span>(ms, <span class="sc">-</span>50L, 300L))</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="do">## refit with a different dataset</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>mod_3b <span class="ot">&lt;-</span> <span class="fu">update</span>(mod_3, <span class="at">data =</span> pog_3b)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Generate fitted values from the new model and plot.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>fits_3b <span class="ot">&lt;-</span> pog_new <span class="sc">%&gt;%</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">between</span>(ms, <span class="sc">-</span>50L, 300L)) <span class="sc">%&gt;%</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">poly_add_columns</span>(ms, <span class="at">degree =</span> <span class="dv">3</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">fitted =</span> <span class="fu">predict</span>(mod_3b, <span class="at">newdata =</span> .,</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>                          <span class="at">re.form =</span> <span class="cn">NA</span>))</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(fits_3b,</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(ms, probability,</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>           <span class="at">shape =</span> crit, <span class="at">color =</span> group)) <span class="sc">+</span></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> fitted, <span class="at">linetype =</span> crit)) <span class="sc">+</span></span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"top"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="polynomial_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Well, that is even worse.</p>
+<section id="activity-quintic-model" class="level3" data-number="4.3.1">
+<h3 data-number="4.3.1" class="anchored" data-anchor-id="activity-quintic-model"><span class="header-section-number">4.3.1</span> Activity: Quintic model</h3>
+<p>A cubic is really not enough. Try to fit a quintic (5th order) function on the reduced data range (-50 ms to 300 ms). Use the <code>bobyqa</code> optimizer to get <code>lmer()</code> to converge (<code>control = lmerControl(optimizer = "bobyqa")</code>), and fit it with <code>REML=FALSE</code>.</p>
+<p>Then, follow the example above to assess the quality of fit using a plot.</p>
+<div class="callout-important callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-7" class="callout-7-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell" data-hash="polynomial_cache/html/poly-5_673f2b0154e309c98bd6e03ed09fa457">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>pog_5 <span class="ot">&lt;-</span> pog_prep <span class="sc">%&gt;%</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">between</span>(ms, <span class="sc">-</span>50L, 300L)) <span class="sc">%&gt;%</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">poly_add_columns</span>(ms, <span class="at">degree =</span> <span class="dv">5</span>)</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>mod_5 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(p <span class="sc">~</span> (ms1 <span class="sc">+</span> ms2 <span class="sc">+</span> ms3 <span class="sc">+</span> ms4 <span class="sc">+</span> ms5) <span class="sc">*</span> G <span class="sc">*</span> C <span class="sc">+</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>                ((ms1 <span class="sc">+</span> ms2 <span class="sc">+</span> ms3 <span class="sc">+</span> ms4 <span class="sc">+</span> ms5) <span class="sc">*</span> C <span class="sc">||</span> sub_id), </span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>              <span class="at">data =</span> pog_5, <span class="at">REML=</span><span class="cn">FALSE</span>,</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>              <span class="at">control =</span> <span class="fu">lmerControl</span>(<span class="at">optimizer =</span> <span class="st">"bobyqa"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now evaluate the fit.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>fits_5 <span class="ot">&lt;-</span> pog_new <span class="sc">%&gt;%</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">between</span>(ms, <span class="sc">-</span>50L, 300L)) <span class="sc">%&gt;%</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">poly_add_columns</span>(ms, <span class="at">degree =</span> <span class="dv">5</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">fitted =</span> <span class="fu">predict</span>(mod_5, <span class="at">newdata =</span> .,</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>                          <span class="at">re.form =</span> <span class="cn">NA</span>))</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(fits_5,</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(ms, probability,</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>           <span class="at">shape =</span> crit, <span class="at">color =</span> group)) <span class="sc">+</span></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> fitted, <span class="at">linetype =</span> crit)) <span class="sc">+</span></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"top"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="polynomial_files/figure-html/poly-5-plot-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p>OK, that’s a fit that we can be happy with.</p>
+<p>Let’s have a look at the model output.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mod_5)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by maximum likelihood  ['lmerMod']
+Formula: p ~ (ms1 + ms2 + ms3 + ms4 + ms5) * G * C + ((1 | sub_id) + (0 +  
+    ms1 | sub_id) + (0 + ms2 | sub_id) + (0 + ms3 | sub_id) +  
+    (0 + ms4 | sub_id) + (0 + ms5 | sub_id) + (0 + C | sub_id) +  
+    (0 + ms1:C | sub_id) + (0 + ms2:C | sub_id) + (0 + ms3:C |  
+    sub_id) + (0 + ms4:C | sub_id) + (0 + ms5:C | sub_id))
+   Data: pog_5
+Control: lmerControl(optimizer = "bobyqa")
+
+     AIC      BIC   logLik deviance df.resid 
+ -9233.6  -9004.1   4653.8  -9307.6     3615 
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-3.2631 -0.4883 -0.0013  0.4694  4.4521 
+
+Random effects:
+ Groups    Name        Variance Std.Dev.
+ sub_id    (Intercept) 0.002499 0.04999 
+ sub_id.1  ms1         0.046758 0.21624 
+ sub_id.2  ms2         0.017703 0.13305 
+ sub_id.3  ms3         0.014331 0.11971 
+ sub_id.4  ms4         0.005942 0.07709 
+ sub_id.5  ms5         0.006101 0.07811 
+ sub_id.6  C           0.007937 0.08909 
+ sub_id.7  ms1:C       0.113327 0.33664 
+ sub_id.8  ms2:C       0.075215 0.27425 
+ sub_id.9  ms3:C       0.061012 0.24701 
+ sub_id.10 ms4:C       0.020677 0.14380 
+ sub_id.11 ms5:C       0.021688 0.14727 
+ Residual              0.002148 0.04635 
+Number of obs: 3652, groups:  sub_id, 83
+
+Fixed effects:
+             Estimate Std. Error t value
+(Intercept)  0.167871   0.005541  30.295
+ms1         -0.209290   0.024008  -8.718
+ms2         -0.121173   0.015042  -8.056
+ms3          0.006115   0.013625   0.449
+ms4          0.046584   0.009195   5.066
+ms5          0.003498   0.009299   0.376
+G            0.026723   0.011082   2.411
+C            0.054710   0.009899   5.527
+ms1:G        0.148235   0.048016   3.087
+ms2:G        0.006309   0.030084   0.210
+ms3:G       -0.070349   0.027249  -2.582
+ms4:G        0.018576   0.018390   1.010
+ms5:G        0.006853   0.018597   0.368
+ms1:C        0.010683   0.037648   0.284
+ms2:C       -0.191025   0.030953  -6.171
+ms3:C        0.006511   0.028053   0.232
+ms4:C        0.099358   0.017347   5.728
+ms5:C       -0.003818   0.017695  -0.216
+G:C         -0.009915   0.019798  -0.501
+ms1:G:C      0.144761   0.075295   1.923
+ms2:G:C      0.046990   0.061907   0.759
+ms3:G:C     -0.156586   0.056106  -2.791
+ms4:G:C      0.009317   0.034695   0.269
+ms5:G:C      0.061278   0.035390   1.732</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Correlation matrix not shown by default, as p = 24 &gt; 12.
+Use print(x, correlation=TRUE)  or
+    vcov(x)        if you need it</code></pre>
+</div>
+</div>
+<p>Now let’s use model comparison to answer our question: do the time-varying components for lexical competition vary across children and adults?</p>
+<div class="cell" data-hash="polynomial_cache/html/mod5-compare_ae91ad010c9f73252e9c9093f7d89550">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>mod_5_drop <span class="ot">&lt;-</span> </span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">update</span>(mod_5,</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>         . <span class="sc">~</span> . <span class="sc">-</span>ms1<span class="sc">:</span>G<span class="sc">:</span>C <span class="sc">-</span>ms2<span class="sc">:</span>G<span class="sc">:</span>C <span class="sc">-</span>ms3<span class="sc">:</span>G<span class="sc">:</span>C <span class="sc">-</span>ms4<span class="sc">:</span>G<span class="sc">:</span>C <span class="sc">-</span>ms5<span class="sc">:</span>G<span class="sc">:</span>C)</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(mod_5, mod_5_drop)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Data: pog_5
+Models:
+mod_5_drop: p ~ ms1 + ms2 + ms3 + ms4 + ms5 + G + C + (1 | sub_id) + (0 + ms1 | sub_id) + (0 + ms2 | sub_id) + (0 + ms3 | sub_id) + (0 + ms4 | sub_id) + (0 + ms5 | sub_id) + (0 + C | sub_id) + (0 + ms1:C | sub_id) + (0 + ms2:C | sub_id) + (0 + ms3:C | sub_id) + (0 + ms4:C | sub_id) + (0 + ms5:C | sub_id) + ms1:G + ms2:G + ms3:G + ms4:G + ms5:G + ms1:C + ms2:C + ms3:C + ms4:C + ms5:C + G:C
+mod_5: p ~ (ms1 + ms2 + ms3 + ms4 + ms5) * G * C + ((1 | sub_id) + (0 + ms1 | sub_id) + (0 + ms2 | sub_id) + (0 + ms3 | sub_id) + (0 + ms4 | sub_id) + (0 + ms5 | sub_id) + (0 + C | sub_id) + (0 + ms1:C | sub_id) + (0 + ms2:C | sub_id) + (0 + ms3:C | sub_id) + (0 + ms4:C | sub_id) + (0 + ms5:C | sub_id))
+           npar     AIC     BIC logLik deviance  Chisq Df Pr(&gt;Chisq)  
+mod_5_drop   32 -9229.0 -9030.5 4646.5  -9293.0                       
+mod_5        37 -9233.6 -9004.1 4653.8  -9307.6 14.653  5    0.01195 *
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<p>There are further things we could potentially do with this model, including performing model comparison on the time-varying components. One thing we probably should do would be to repeat all the above steps, but treating items as a random factor instead of subjects.</p>
+<p>One issue with polynomial regression is that the complexity of the model is likely to give rise to convergence problems. One strategy is to estimate the parameters using re-sampling techniques, which we’ll learn about in the next chapter.</p>
+<p>Before we do that, let’s save <code>pog_subj</code>, because we’ll need it for the next set of activities.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>pog_subj <span class="sc">%&gt;%</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="at">file =</span> <span class="st">"data-derived/pog_subj.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography" style="display: none">
+<div id="ref-barr2008" class="csl-entry" role="doc-biblioentry">
+Barr, Dale J. 2008. <span>“Analyzing <span>‘Visual World’</span> Eyetracking Data Using Multilevel Logistic Regression.”</span> <em><span>Journal of Memory and Language</span></em> 59: 457–74.
+</div>
+<div id="ref-mirman2008" class="csl-entry" role="doc-biblioentry">
+Mirman, Daniel, James A Dixon, and James S Magnuson. 2008. <span>“<span class="nocase">Statistical and computational models of the visual world paradigm: Growth curves and individual differences</span>.”</span> <em><span>Journal of Memory and Language</span></em> 59 (4): 475–94.
+</div>
+</div>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./plotting.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Plot probabilities</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./clust-perm.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Cluster-permutation analysis</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+      <div class="nav-footer-center">Copyright 2022, Dale J. Barr. Content licensed under Creative Commons CC-BY-SA.</div>
+  </div>
+</footer>
+
+
+
+</body></html>

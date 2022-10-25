@@ -18,6 +18,8 @@ book:
     - part: "Visualization and Analysis"
       chapters:
       - plotting.qmd
+      - polynomial.qmd
+      - clust-perm.qmd
   appendices:
     - references.qmd
     - data-structure.qmd

@@ -142,3 +142,36 @@ ggplot(prob_all, aes(f_c, p, colour = role)) +
 
 #### Plot
 
+### Activity: Testing `crit`
+
+The variable `crit` represents a within-subject factor, corresponding to whether the critical object was a competitor or non-competitor. In a mixed design, when you want to shuffle a within-subject factor, you have to do it in a "synchronized" fashion, such that the number of exchanges is the same at each level of the between-subjects factor. The function `shuffle_each_sync()` performs this function, but it is not designed for multilevel data, so we'll have to write a wrapper function.
+
+First, we need to get our data into nested format. Use the `nest()` function to make a table `pog_crit_nest` nested like so.
+
+```{r}
+#| label: nest-like-so-result
+#| echo: false
+pog_crit_nest <- pog_subj %>%
+  nest(data = c(-sub_id, -group, -crit))
+
+pog_crit_nest
+```
+
+:::{.callout-important collapse="true"}
+#### Solution
+
+```{r}
+#| label: nest-like-so
+#| eval: false
+pog_crit_nest <- pog_subj %>%
+  nest(data = c(-sub_id, -group, -crit))
+```
+
+:::
+
+Now we are ready to apply `shuffle_each_sync()`. Let's try it once to see how it works.
+
+```{r}
+#| label: shuf-each-sync
+shuffle_each_sync(pog_crit_nest, crit, sub_id, group)
+```

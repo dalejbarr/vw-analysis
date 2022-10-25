@@ -1,0 +1,425 @@
+# Polynomial regression
+
+For more information about these approaches, see @barr2008 and @mirman2008. It is also possible to use Generalized Additive Mixed Models (GAMMs), which can more easily accommodate arbitrary wiggly patterns and asymptotes, but that is beyond the current scope of this textbook.
+
+```{r}
+#| label: setup
+#| message: false
+library("tidyverse")
+
+pog <- read_rds("data-derived/pog_cts.rds")
+```
+
+```{r}
+#| label: print-pog
+#| echo: false
+pog
+```
+
+## Binning data
+
+We are going to follow the @mirman2008 approach. What we want to do first is to model the shape of the curve for existing competitors and see if it differs across children and adults.
+
+We will perform separate by-subject and by-item analysis. The reason why this is needed is that we have to first aggregate the data in order to deal with the frame-by-frame dependencies. A common approach is to aggregate frames into 50 ms bins (i.e. each having 3 frames).
+
+The general formula for binning data is:
+
+`bin = floor( (frame + binsize/2) / binsize ) * binsize`
+
+To bin things up into bins of 3 frames each, it would be
+
+`bin = floor( (frame + 3/2) / 3) * 3`
+
+To get a sense for how this formula works, try it out in the console.
+
+```{r}
+#| label: try-binning
+sample_frames <- -10:10
+
+rbind(frame = sample_frames,
+      bin = floor( (sample_frames + 3/2) / 3) * 3)
+```
+
+
+:::{.callout-note}
+### Why add half a bin?
+
+Shifting frames forward by half of the binsize gives us more accurate bin numbering. To see why, consider the unshifted version to our shifted version above.
+
+```{r}
+## unshifted version
+rbind(frame = sample_frames,
+      bin = floor(sample_frames / 3) * 3)
+```
+
+
+Note that in the shifted version, the bin name corresponds to the median frame contained in the bin, whereas in the unshifted version, it corresponds to the first frame in the bin. For instance, bin 0, contains -1, 0, and 1 in the shifted version; in the unshifted version, it contains 0, 1, and 2.
+
+:::
+
+### Activity: Calculating bins
+
+Following the above logic, add the variables `bin` and `ms` (time in milliseconds for the corresponding bin) to the `pog` table. Save the result as `pog_calc`.
+
+```{r}
+#| label: pog-calc-format
+#| echo: false
+pog_calc <- pog %>%
+  mutate(bin = floor((f_c + 3/2) / 3) %>% as.integer(),
+         ms = as.integer(1000 * bin / 60))
+pog_calc
+```
+
+:::{.callout-important collapse="true"}
+#### Solution
+
+```{r}
+#| label: pog-calc
+#| eval: false
+pog_calc <- pog %>%
+  mutate(bin = floor((f_c + 3/2) / 3) %>% as.integer(),
+         ms = as.integer(1000 * bin / 60))
+```
+
+:::
+
+### Activity: Count frames in bins
+
+For the analysis below, we're going to focus on the existing competitors (`ctype == "exist"`). Link the `pog_calc` data to information about subjects and conditions (`crit`) to create the following table, where `Y` is the number of frames observed for the particular combination of `sub_id`, `group`, `crit`, `ms`, and `role`. Save the resulting table as `pog_subj_y`.
+
+```{r}
+#| label: pog-subj-y-result
+#| echo: false
+subjects <- read_csv("data-raw/subjects.csv",
+                     col_types = "ic")
+
+trials <- read_csv("data-raw/trials.csv",
+                   col_types = "iiiiii")
+
+stimuli <- read_csv("data-raw/stimuli.csv",
+                    col_types = "iiciccc")
+
+pog_subj_y <- pog_calc %>%
+  inner_join(subjects, "sub_id") %>%
+  inner_join(trials, c("sub_id", "t_id")) %>%
+  inner_join(stimuli, c("iv_id")) %>%
+  filter(ctype == "exist") %>%
+  count(sub_id, group, crit, ms, role,
+        name = "Y", .drop = FALSE)
+
+pog_subj_y
+```
+
+:::{.callout-important collapse="true"}
+#### Solution
+
+```{r}
+#| label: pog-subj-y
+#| eval: false
+subjects <- read_csv("data-raw/subjects.csv",
+                     col_types = "ic")
+
+trials <- read_csv("data-raw/trials.csv",
+                   col_types = "iiiiii")
+
+stimuli <- read_csv("data-raw/stimuli.csv",
+                    col_types = "iiciccc")
+
+pog_subj_y <- pog_calc %>%
+  inner_join(subjects, "sub_id") %>%
+  inner_join(trials, c("sub_id", "t_id")) %>%
+  inner_join(stimuli, c("iv_id")) %>%
+  filter(ctype == "exist") %>%
+  count(sub_id, group, crit, ms, role,
+        name = "Y", .drop = FALSE)
+```
+
+:::
+
+### Activity: Compute probabilities
+
+Now add in variables `N`, the total number of frames for a given combination of `sub_id`, `group`, `crit`, and `ms`, and `p`, which is the probability (`Y / N`). Save the result as `pog_subj`.
+
+```{r}
+#| label: pog-subj-result
+#| echo: false
+pog_subj <- pog_subj_y %>%
+  group_by(sub_id, group, crit, ms) %>%
+  mutate(N = sum(Y),
+         p = Y / N) %>%
+  ungroup()
+
+pog_subj
+```
+
+:::{.callout-tip collapse="true"}
+#### Hint
+
+Recall what we did back in the plotting chapter, when creating `probs_exist` (a windowed mutate). You'll need to do something like that again here.
+
+:::
+
+:::{.callout-important collapse="true"}
+#### Solution
+
+```{r}
+#| label: pog-subj
+#| eval: false
+pog_subj <- pog_subj_y %>%
+  group_by(sub_id, group, crit, ms) %>%
+  mutate(N = sum(Y),
+         p = Y / N) %>%
+  ungroup()
+```
+
+:::
+
+## Plot mean probabilities
+
+### Activity: Mean probabilities
+
+Let's now compute the mean probabilities for looks to the critical object across groups (adults, children) and condition (competitor, unrelated). First calculate the table `pog_means` below, then use it to create the graph below.
+
+```{r}
+#| label: pog-means-result
+#| echo: false
+pog_means <- pog_subj %>%
+  filter(role == "critical") %>%
+  group_by(group, crit, ms) %>%
+  summarize(probability = mean(p),
+            .groups = "drop")
+
+pog_means
+```
+
+```{r}
+#| label: pog-means-plot-result
+#| echo: false
+#| fig-width: 8
+#| fig-height: 3
+ggplot(pog_means, aes(ms, probability,
+                      shape = crit, color = group)) +
+  geom_point(alpha = .5) +
+  coord_cartesian(xlim = c(-200, 500)) +
+  theme(legend.position = "top")
+```
+
+:::{.callout-important collapse="true"}
+#### Solution
+
+```{r}
+#| label: pog-means
+#| eval: false
+pog_means <- pog_subj %>%
+  filter(role == "critical") %>%
+  group_by(group, crit, ms) %>%
+  summarize(probability = mean(p),
+            .groups = "drop")
+```
+
+```{r}
+#| label: pog-means-plot
+#| eval: false
+#| fig-width: 8
+#| fig-height: 3
+ggplot(pog_means, aes(ms, probability,
+                      shape = crit, color = group)) +
+  geom_point(alpha = .5) +
+  coord_cartesian(xlim = c(-200, 500)) +
+  theme(legend.position = "top")
+```
+
+:::
+
+## Polynomial regression
+
+Our task now is to fit the functions shown in the above figure using orthogonal polynomials. To avoid asymptotes, we will limit our analysis to 200 to 500 ms window, which is where the function seems to be changing.
+
+The first thing we will do is prepare the data, adding in [deviation-coded](https://talklab.psy.gla.ac.uk/tvw/catpred/) numerical predictors for `group` (`G`) and `crit` (`C`).
+
+We will load in the R packages **`{lme4}`** for fitting linear mixed-effects models, and **`{polypoly}`** for working with orthogonal polynomials.
+
+```{r}
+#| label: load-packages
+#| message: false
+# if you don't have it, type
+# install.packages("polypoly") # in the console
+library("polypoly")
+library("lme4")
+
+pog_prep <- pog_subj %>%
+  filter(role == "critical", ms >= -200) %>%
+  mutate(G = if_else(group == "child", 1/2, -1/2),
+         C = if_else(crit == "competitor", 1/2, -1/2))
+
+## check that we didn't make any errors
+pog_prep %>%
+  distinct(group, crit, G, C)
+```
+
+
+```{r}
+pog_3 <- pog_prep %>%
+  poly_add_columns(ms, degree = 3) %>%
+  select(sub_id, group, G, crit, C, ms, p, ms1, ms2, ms3)
+```
+
+```{r}
+#| label: fit-cubic
+mod_3 <- lmer(p ~ (ms1 + ms2 + ms3) * G * C +
+                ((ms1 + ms2 + ms3) * C || sub_id), 
+              data = pog_3)
+
+summary(mod_3)
+```
+
+It converged! Before we get too excited, plot the model fitted values against the observed values to assess the quality of the fit.
+
+We need data to feed in to the `predict()` function in order to generate our fitted values. We'll use `pog_means` for this purpose, adding in all of the predictors we need for the model, and restricting the range.
+
+```{r}
+pog_new <- pog_means %>%
+  filter(ms >= -200) %>%
+  mutate(G = if_else(group == "child", 1/2, -1/2),
+         C = if_else(crit == "competitor", 1/2, -1/2)) 
+```
+
+Now we are ready to feed it into `predict()` to generate fitted values. Note that we want to make predictions for the "typical" subject with random effects of zero, which requires setting `re.form = NA` for the `predict()` function. See `?predict.merMod` for details. We use `newdata = .` to send the current data from our pipeline as the argument for `newdata`.
+
+
+```{r}
+fits_3 <- pog_new %>%
+  poly_add_columns(ms, degree = 3) %>%
+  mutate(fitted = predict(mod_3, newdata = .,
+                          re.form = NA))
+```
+
+Now we plot the fitted values (lines) against observed (points).
+
+```{r}
+#| fig-width: 8
+#| fig-height: 3
+ggplot(fits_3,
+       aes(ms, probability,
+           shape = crit, color = group)) +
+  geom_point() +
+  geom_line(aes(y = fitted, linetype = crit)) +
+  theme(legend.position = "top")
+```
+
+Not good. We might want to try a higher order model. Alternatively, we can restrict the range further to get rid of asymptotic elements in the later part of the window. Let's try the latter first because that's fairly easy.
+
+```{r}
+pog_3b <- pog_3 %>%
+  filter(between(ms, -50L, 300L))
+
+## refit with a different dataset
+mod_3b <- update(mod_3, data = pog_3b)
+```
+
+Generate fitted values from the new model and plot.
+
+```{r}
+fits_3b <- pog_new %>%
+  filter(between(ms, -50L, 300L)) %>%
+  poly_add_columns(ms, degree = 3) %>%
+  mutate(fitted = predict(mod_3b, newdata = .,
+                          re.form = NA))
+
+ggplot(fits_3b,
+       aes(ms, probability,
+           shape = crit, color = group)) +
+  geom_point() +
+  geom_line(aes(y = fitted, linetype = crit)) +
+  theme(legend.position = "top")
+```
+
+Well, that is even worse.
+ 
+### Activity: Quintic model
+
+A cubic is really not enough. Try to fit a quintic (5th order) function on the reduced data range (-50 ms to 300 ms). Use the `bobyqa` optimizer to get `lmer()` to converge (`control = lmerControl(optimizer = "bobyqa")`), and fit it with `REML=FALSE`.
+
+Then, follow the example above to assess the quality of fit using a plot. 
+
+:::{.callout-important collapse="true"}
+#### Solution
+
+```{r}
+#| label: poly-5
+#| cache: true
+pog_5 <- pog_prep %>%
+  filter(between(ms, -50L, 300L)) %>%
+  poly_add_columns(ms, degree = 5)
+
+mod_5 <- lmer(p ~ (ms1 + ms2 + ms3 + ms4 + ms5) * G * C +
+                ((ms1 + ms2 + ms3 + ms4 + ms5) * C || sub_id), 
+              data = pog_5, REML=FALSE,
+              control = lmerControl(optimizer = "bobyqa"))
+```
+
+Now evaluate the fit.
+
+```{r}
+#| label: poly-5-plot
+fits_5 <- pog_new %>%
+  filter(between(ms, -50L, 300L)) %>%
+  poly_add_columns(ms, degree = 5) %>%
+  mutate(fitted = predict(mod_5, newdata = .,
+                          re.form = NA))
+
+ggplot(fits_5,
+       aes(ms, probability,
+           shape = crit, color = group)) +
+  geom_point() +
+  geom_line(aes(y = fitted, linetype = crit)) +
+  theme(legend.position = "top")
+```
+
+:::
+
+```{r}
+#| label: hidden-save-plot
+#| include: false
+.g <- ggplot(fits_5,
+       aes(ms, probability, shape = crit, color = group)) +
+  geom_point() +
+  geom_line(aes(linetype = crit)) +
+  theme(legend.position = "top")
+
+ggsave("img/existing-competition.png", .g, width = 8, height = 4)
+```
+
+OK, that's a fit that we can be happy with.
+
+Let's have a look at the model output.
+
+```{r}
+summary(mod_5)
+```
+
+Now let's use model comparison to answer our question: do the time-varying components for lexical competition vary across children and adults?
+
+```{r}
+#| label: mod5-compare
+#| cache: true
+mod_5_drop <- 
+  update(mod_5,
+         . ~ . -ms1:G:C -ms2:G:C -ms3:G:C -ms4:G:C -ms5:G:C)
+
+anova(mod_5, mod_5_drop)
+```
+
+
+There are further things we could potentially do with this model, including performing model comparison on the time-varying components. One thing we probably should do would be to repeat all the above steps, but treating items as a random factor instead of subjects.
+
+One issue with polynomial regression is that the complexity of the model is likely to give rise to convergence problems. One strategy is to estimate the parameters using re-sampling techniques, which we'll learn about in the next chapter.
+
+Before we do that, let's save `pog_subj`, because we'll need it for the next set of activities.
+
+```{r}
+#| label: save-the-data
+pog_subj %>%
+  saveRDS(file = "data-derived/pog_subj.rds")
+```
+

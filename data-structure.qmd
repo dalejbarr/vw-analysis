@@ -1,3 +1,5 @@
 # Structure of Weighall et al. (2017) raw data {#sec-datastruct}
 
+If you have trouble viewing the image below, you can [download a PDF version](img/database/data-raw.pdf) of the figure.
+
 ![](img/database/data-raw.png){#fig-datastructure}

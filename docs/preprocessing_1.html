@@ -212,6 +212,16 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <a href="./plotting.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Plot probabilities</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./polynomial.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Polynomial regression</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./clust-perm.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Cluster-permutation analysis</span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
@@ -290,8 +300,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <table class="table table-sm table-striped">
 <colgroup>
 <col style="width: 20%">
-<col style="width: 5%">
-<col style="width: 74%">
+<col style="width: 4%">
+<col style="width: 75%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -303,117 +313,117 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">ID</td>
-<td style="text-align: left;"><int></int></td>
+<td style="text-align: left;">int</td>
 <td style="text-align: left;">arbitrary value uniquely identifying each frame within subject</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">TETTime</td>
-<td style="text-align: left;"><dbl></dbl></td>
+<td style="text-align: left;">dbl</td>
 <td style="text-align: left;">(ignored)</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">RTTime</td>
-<td style="text-align: left;"><int></int></td>
+<td style="text-align: left;">int</td>
 <td style="text-align: left;">(ignored)</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">CursorX</td>
-<td style="text-align: left;"><int></int></td>
+<td style="text-align: left;">int</td>
 <td style="text-align: left;">horizontal point of gaze in pixels</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">CursorY</td>
-<td style="text-align: left;"><int></int></td>
+<td style="text-align: left;">int</td>
 <td style="text-align: left;">vertical point of gaze in pixels</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">TimestampSec</td>
-<td style="text-align: left;"><int></int></td>
+<td style="text-align: left;">int</td>
 <td style="text-align: left;">timestamp in seconds</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">TimestampMicrosec</td>
-<td style="text-align: left;"><int></int></td>
+<td style="text-align: left;">int</td>
 <td style="text-align: left;">millisecond portion of timestamp (cycles around)</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">XGazePosLeftEye</td>
-<td style="text-align: left;"><dbl></dbl></td>
+<td style="text-align: left;">dbl</td>
 <td style="text-align: left;">(ignored)</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">YGazePosLeftEye</td>
-<td style="text-align: left;"><dbl></dbl></td>
+<td style="text-align: left;">dbl</td>
 <td style="text-align: left;">(ignored)</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">XCameraPosLeftEye</td>
-<td style="text-align: left;"><dbl></dbl></td>
+<td style="text-align: left;">dbl</td>
 <td style="text-align: left;">(ignored)</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">YCameraPosLeftEye</td>
-<td style="text-align: left;"><dbl></dbl></td>
+<td style="text-align: left;">dbl</td>
 <td style="text-align: left;">(ignored)</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">DiameterPupilLeftEye</td>
-<td style="text-align: left;"><dbl></dbl></td>
+<td style="text-align: left;">dbl</td>
 <td style="text-align: left;">(ignored)</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">DistanceLeftEye</td>
-<td style="text-align: left;"><dbl></dbl></td>
+<td style="text-align: left;">dbl</td>
 <td style="text-align: left;">(ignored)</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">ValidityLeftEye</td>
-<td style="text-align: left;"><int></int></td>
+<td style="text-align: left;">int</td>
 <td style="text-align: left;">(ignored)</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">XGazePosRightEye</td>
-<td style="text-align: left;"><dbl></dbl></td>
+<td style="text-align: left;">dbl</td>
 <td style="text-align: left;">(ignored)</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">YGazePosRightEye</td>
-<td style="text-align: left;"><dbl></dbl></td>
+<td style="text-align: left;">dbl</td>
 <td style="text-align: left;">(ignored)</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">XCameraPosRightEye</td>
-<td style="text-align: left;"><dbl></dbl></td>
+<td style="text-align: left;">dbl</td>
 <td style="text-align: left;">(ignored)</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">YCameraPosRightEye</td>
-<td style="text-align: left;"><dbl></dbl></td>
+<td style="text-align: left;">dbl</td>
 <td style="text-align: left;">(ignored)</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">DiameterPupilRightEye</td>
-<td style="text-align: left;"><dbl></dbl></td>
+<td style="text-align: left;">dbl</td>
 <td style="text-align: left;">(ignored)</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">DistanceRightEye</td>
-<td style="text-align: left;"><dbl></dbl></td>
+<td style="text-align: left;">dbl</td>
 <td style="text-align: left;">(ignored)</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">ValidityRightEye</td>
-<td style="text-align: left;"><int></int></td>
+<td style="text-align: left;">int</td>
 <td style="text-align: left;">(ignored)</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">TrialId</td>
-<td style="text-align: left;"><int></int></td>
+<td style="text-align: left;">int</td>
 <td style="text-align: left;">arbitrary value uniquely identifying each trial within a subject (same as t_id)</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">UserDefined_1</td>
-<td style="text-align: left;"><chr></chr></td>
+<td style="text-align: left;">chr</td>
 <td style="text-align: left;">phase of the trial (Fixation, Preview, StimSlide)</td>
 </tr>
 </tbody>
@@ -663,7 +673,7 @@ Solution
 <h2 data-number="1.2" class="anchored" data-anchor-id="epoching-and-time-alignment"><span class="header-section-number">1.2</span> Epoching and time-alignment</h2>
 <p>The Tobii eyetracker recorded data at a rate of 60 Hertz (i.e., 60 frames per second, or one frame every 1/60th of a second.) For each trial, the frame counter (<code>ID</code>, which we renamed to <code>f_id</code>) starts at 1 and increments every frame. This is not very useful because we need to know when certain stimulus events occurred, and these will take place at a different frame number for every trial, depending on the timing of the speech events of the stimulus for that trial. We need to re-define the ‘origin’ of the eye-tracking data. In this study, we used the ‘disambiguation point’, which is the point in the word where the signal distinguishes between two competing lexical items (e.g., candy and candle).</p>
 <p><img src="img/epoching.png" id="fig-epoching" class="img-fluid"></p>
-<p>As <span class="quarto-unresolved-ref">?fig-epoching</span> shows, each trial had three phases, a <code>Fixation</code>, <code>Preview</code>, and <code>StimSlide</code> phase, which are indexed by the variable <code>phase</code>. Playback of a soundfile with a pre-recorded speech stimulus began simultaneously with the onset of the <code>StimSlide</code> phase.</p>
+<p>As the above figure shows, each trial had three phases, a <code>Fixation</code>, <code>Preview</code>, and <code>StimSlide</code> phase, which are indexed by the variable <code>phase</code>. Playback of a soundfile with a pre-recorded speech stimulus began simultaneously with the onset of the <code>StimSlide</code> phase.</p>
 <p>For each trial (uniquely identified by <code>sub_id</code> and <code>t_id</code>), we are going to need to do two things to time-align the eye data to the disambiguation point.</p>
 <ol type="1">
 <li><p>Find out what sound was played and the timing of the disambiguation point within that soundfile, as measured from the start of the file.</p></li>

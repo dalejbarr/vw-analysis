@@ -26,7 +26,7 @@ The raw gazedata files include a lot of unnecessary information. We'll need to s
 ```{r}
 #| label: show-eyedata
 #| echo: false
-knitr::kable(eye_cb)
+knitr::kable(eye_cb, escape = TRUE)
 ```
 
 ### Activity: One Subject
@@ -201,7 +201,7 @@ The Tobii eyetracker recorded data at a rate of 60 Hertz (i.e., 60 frames per se
 
 ![](img/epoching.png){#fig-epoching}
 
-As @fig-epoching shows, each trial had three phases, a `Fixation`, `Preview`, and `StimSlide` phase, which are indexed by the variable `phase`. Playback of a soundfile with a pre-recorded speech stimulus began simultaneously with the onset of the `StimSlide` phase.
+As the above figure shows, each trial had three phases, a `Fixation`, `Preview`, and `StimSlide` phase, which are indexed by the variable `phase`. Playback of a soundfile with a pre-recorded speech stimulus began simultaneously with the onset of the `StimSlide` phase.
 
 For each trial (uniquely identified by `sub_id` and `t_id`), we are going to need to do two things to time-align the eye data to the disambiguation point.
 

@@ -6,6 +6,7 @@ First, let's load in **`{tidyverse}`** and then import the point-of-gaze data.
 
 ```{r}
 #| label: setup
+#| message: false
 library("tidyverse")
 
 pog_cts <- read_rds("data-derived/pog_cts.rds")
@@ -111,7 +112,7 @@ count_exist
 ```
 
 :::{.callout-important collapse="true"}
-#### Solution
+#### Solution {#sec-countexist}
 
 ```{r}
 #| label: count-exist

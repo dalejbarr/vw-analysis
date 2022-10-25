@@ -3,18 +3,22 @@
 At this point we have epoched our eyetracking data, resulting in the `edat-epoched.rds` file which looks like so:
 
 ```{r}
+#| include: false
+library("tidyverse")
+source("codebook.R")
+```
+
+
+```{r}
 #| label: show-epoched-eyedata
-#| echo: false
+#| echo: true
 #| message: false
 
 library("tidyverse")
-source("codebook.R")
 
 edat <- read_rds("data-derived/edat-epoched.rds")
 
-edat %>%
-  head() %>%
-  knitr::kable()
+edat
 ```
 
 We know **when** people are looking relative to the disambiguation point for the trial (`f_c`), and we know **where** they are looking, because we have the (x, y) coordinates. But we yet don't know **which image they are looking at** on each frame. So we have to map the two-dimensional gaze coordinates onto the coordinates of the images that was displayed on a given trial.

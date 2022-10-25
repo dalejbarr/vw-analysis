@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.1.251">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Reproducibly Analysing Visual-World Eyetracking Data - 5&nbsp; Cluster-permutation analysis</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./references.html" rel="next">
+<link href="./polynomial.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Cluster-permutation analysis</span></h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Reproducibly Analysing Visual-World Eyetracking Data</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/dalejbarr/vw-analysis/" title="Source Code" class="sidebar-tool px-1"><i class="bi bi-github"></i></a>
+    <a href="" title="Share" id="sidebar-tool-dropdown-0" class="sidebar-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-share"></i></a>
+    <ul class="dropdown-menu" aria-labelledby="sidebar-tool-dropdown-0">
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="https://twitter.com/intent/tweet?url=|url|">
+            <i class="bi bi-bi-twitter pe-1"></i>
+          Twitter
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="https://www.facebook.com/sharer/sharer.php?u=|url|">
+            <i class="bi bi-bi-facebook pe-1"></i>
+          Facebook
+          </a>
+        </li>
+    </ul>
+</div>
+    </div>
+      </div>
+      <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">Background</a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">Pre-processing</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./preprocessing_1.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Import, epoching, and time-alignment</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./preprocessing_2.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Mapping gaze to areas of interest</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">Visualization and Analysis</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./plotting.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Plot probabilities</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./polynomial.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Polynomial regression</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./clust-perm.html" class="sidebar-item-text sidebar-link active"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Cluster-permutation analysis</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">Appendices</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">References</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./data-structure.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">Structure of Weighall et al.&nbsp;(2017) raw data</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#our-task" id="toc-our-task" class="nav-link active" data-scroll-target="#our-task"><span class="toc-section-number">5.1</span>  Our task</a>
+  <ul class="collapse">
+  <li><a href="#activity-aov_by_bin" id="toc-activity-aov_by_bin" class="nav-link" data-scroll-target="#activity-aov_by_bin"><span class="toc-section-number">5.1.1</span>  Activity: <code>aov_by_bin()</code></a></li>
+  <li><a href="#activity-detect-clusters" id="toc-activity-detect-clusters" class="nav-link" data-scroll-target="#activity-detect-clusters"><span class="toc-section-number">5.1.2</span>  Activity: Detect clusters</a></li>
+  </ul></li>
+  <li><a href="#deriving-null-hypothesis-distributions-through-resampling" id="toc-deriving-null-hypothesis-distributions-through-resampling" class="nav-link" data-scroll-target="#deriving-null-hypothesis-distributions-through-resampling"><span class="toc-section-number">5.2</span>  Deriving null-hypothesis distributions through resampling</a>
+  <ul class="collapse">
+  <li><a href="#activity-build-a-nest" id="toc-activity-build-a-nest" class="nav-link" data-scroll-target="#activity-build-a-nest"><span class="toc-section-number">5.2.1</span>  Activity: Build a <code>nest()</code></a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title d-none d-lg-block"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Cluster-permutation analysis</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    
+  </div>
+  
+
+</header>
+
+<p>Cluster-permutation analysis was first developed for statistical problems in fMRI <span class="citation" data-cites="bullmore1999">(<a href="references.html#ref-bullmore1999" role="doc-biblioref">Bullmore et al. 1999</a>)</span> and EEG/MEG research <span class="citation" data-cites="maris2007">(<a href="references.html#ref-maris2007" role="doc-biblioref">Maris and Oostenveld 2007</a>)</span>. It developed as a means of controlling the false positive rates for numerous tests across electrode, voxel, and time, without incurring the catastrophic hit to power that would occur using conventional (Bonferroni-type) correction methods. Usually you would use this approach when you more are interested in <strong>when</strong> an effect arises than in the overall shape of effects across an analysis window. However, I would be remiss not to mention a recent article which takes a critical view on its ability to establish the locus of effects in time <span class="citation" data-cites="sassenhagen2019">(<a href="references.html#ref-sassenhagen2019" role="doc-biblioref">Sassenhagen and Draschkow 2019</a>)</span>. But it is still useful for establishing a time range around which ‘something is happening’ even if it doesn’t allow us to express uncertainty around the boundaries of that time range (which would be even more useful).</p>
+<section id="our-task" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="our-task"><span class="header-section-number">5.1</span> Our task</h2>
+<p>What we are going to do is run a cluster-permutation analysis on the data below, to see when the group-by-competition interaction is likely to be reliable.</p>
+<p><img src="img/existing-competition.png" class="img-fluid"></p>
+<p>For the analysis, we’ll need two development packages (only available on github): <strong><code>{exchangr}</code></strong> and <strong><code>{clusterperm}</code></strong>. The former does exchangeable permutations, and the latter more specifically for this kind of analysis.</p>
+<p>We’re going to use the data <code>pog_subj</code> that we created in the last chapter and saved in the <code>data-derived/</code> subdirectory. We’re going to be performing ANOVAs on the data using <code>aov()</code>, so we’ll need to define our independent variables as factors.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"tidyverse"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"exchangr"</span>) <span class="co"># remotes::install_github("dalejbarr/exchangr")</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"clusterperm"</span>) <span class="co"># remotes::install_github("dalejbarr/clustperm")</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>pog_subj <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">"data-derived/pog_subj.rds"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(role <span class="sc">==</span> <span class="st">"critical"</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>         <span class="fu">between</span>(ms, <span class="sc">-</span><span class="dv">200</span>, <span class="dv">300</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>role, <span class="sc">-</span>Y, <span class="sc">-</span>N) <span class="sc">%&gt;%</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">group =</span> <span class="fu">factor</span>(group),</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>         <span class="at">crit =</span> <span class="fu">factor</span>(crit),</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>         <span class="at">sub_id =</span> <span class="fu">factor</span>(sub_id))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+
+</div>
+<p>Let’s take a moment to understand the <code>aov()</code> function from base R. Imagine that instead of having multiple frames, we wanted to run an ANOVA on a single time point, say at 150 ms. We have a mixed design (group = between-subjects; crit = within-subjects), so the way we would do it is as shown below.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>pog_150 <span class="ot">&lt;-</span> pog_subj <span class="sc">%&gt;%</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ms <span class="sc">==</span> 150L) <span class="sc">%&gt;%</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>ms)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>mod_aov <span class="ot">&lt;-</span> <span class="fu">aov</span>(p <span class="sc">~</span> group <span class="sc">*</span> crit <span class="sc">+</span> <span class="fu">Error</span>(sub_id <span class="sc">/</span> crit),</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>               pog_150)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mod_aov)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Error: sub_id
+          Df Sum Sq Mean Sq F value  Pr(&gt;F)   
+group      1 0.1067 0.10669   7.584 0.00727 **
+Residuals 81 1.1395 0.01407                   
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Error: sub_id:crit
+           Df Sum Sq Mean Sq F value   Pr(&gt;F)    
+crit        1 0.5552  0.5552  27.098 1.43e-06 ***
+group:crit  1 0.0075  0.0075   0.366    0.547    
+Residuals  81 1.6595  0.0205                     
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<section id="activity-aov_by_bin" class="level3" data-number="5.1.1">
+<h3 data-number="5.1.1" class="anchored" data-anchor-id="activity-aov_by_bin"><span class="header-section-number">5.1.1</span> Activity: <code>aov_by_bin()</code></h3>
+<p>The <code>aov_by_bin()</code> function from <strong><code>{clusterperm}</code></strong> will run that same ANOVA at every bin in the dataset. Try it, plugging in the same formula from above. Save the result as <code>orig_result</code>.</p>
+<div class="callout-important callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>orig_result <span class="ot">&lt;-</span> <span class="fu">aov_by_bin</span>(pog_subj, ms,</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>                          p <span class="sc">~</span> group <span class="sc">*</span> crit <span class="sc">+</span> <span class="fu">Error</span>(sub_id <span class="sc">/</span> crit))</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>orig_result</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 93 × 4
+      ms effect        stat      p
+   &lt;int&gt; &lt;chr&gt;        &lt;dbl&gt;  &lt;dbl&gt;
+ 1  -200 group       0.0329 0.857 
+ 2  -200 crit       -3.44   0.0672
+ 3  -200 group:crit -2.66   0.107 
+ 4  -183 group       0.0456 0.831 
+ 5  -183 crit       -2.18   0.143 
+ 6  -183 group:crit -0.654  0.421 
+ 7  -166 group      -0.189  0.665 
+ 8  -166 crit       -1.11   0.295 
+ 9  -166 group:crit -0.219  0.641 
+10  -150 group      -0.535  0.467 
+# … with 83 more rows</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p>The function <code>aov_by_bin()</code> returns the variable <code>stat</code>, which is a signed <code>F</code> statistic, and is positive or negative depending on the direction of the effect. It also returns <code>p</code>, which is the p-value for the effect at the corresponding bin.</p>
+<p>A ‘cluster’ is defined as a set of temporally-adjacent bins where all of the test statistics have the same signs, and the p-values are all less than alpha (where alpha is the false positive level, usually .05). We look for these temporally adjacent bins for each main effect or interaction.</p>
+<p>In this case we have two main effects (<code>group</code> and <code>crit</code>) and one interaction (<code>group:crit</code>), and we can detect clusters for each one of these.</p>
+</section>
+<section id="activity-detect-clusters" class="level3" data-number="5.1.2">
+<h3 data-number="5.1.2" class="anchored" data-anchor-id="activity-detect-clusters"><span class="header-section-number">5.1.2</span> Activity: Detect clusters</h3>
+<p>The <strong><code>{clusterperm}</code></strong> package provides a function to do this, <code>detect_clusters_by_effect()</code>, which is fed the output of <code>aov_by_bin()</code>. Try applying this function to <code>orig_result</code>, and save the result as <code>clusters</code>.</p>
+<div class="callout-important callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>clusters <span class="ot">&lt;-</span> orig_result <span class="sc">%&gt;%</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">detect_clusters_by_effect</span>(effect, ms, stat, p)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>clusters</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 5
+  effect        b0    b1  sign   cms
+  &lt;chr&gt;      &lt;int&gt; &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt;
+1 group        150   300    -1 169. 
+2 crit          33   216     1 284. 
+3 group:crit    33    66     1  21.5</code></pre>
+</div>
+</div>
+<p><code>b0</code> and <code>b1</code> tell you the start and end frames for each cluster; <code>sign</code> gives you the direction of the effect, and <code>cms</code> gives you the “cluster mass statistic”, which is the summed test statistics for the entire cluster.</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="deriving-null-hypothesis-distributions-through-resampling" class="level2" data-number="5.2">
+<h2 data-number="5.2" class="anchored" data-anchor-id="deriving-null-hypothesis-distributions-through-resampling"><span class="header-section-number">5.2</span> Deriving null-hypothesis distributions through resampling</h2>
+<p>A permutation test has proceeds according to the following steps:</p>
+<ol type="1">
+<li>perform an analysis on the original data and store the resulting test statistic;</li>
+<li>generate a null-hypothesis distribution for the test statistic by randomly permuting labels, re-running the analysis, and storing the test statistic many times;</li>
+<li>compare the original test statistic to the distribution of statistics you generated in step 2 to determine how unlikely your original test statistic is under the null hypothesis.</li>
+</ol>
+<div class="callout-warning callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The logic of permutation tests is appealing, but you can really get into trouble very easily trying to apply it to multilevel data. There is a critical assumption that you need to ensure is honored, which is that <strong>all exchanges you make when generating the null-hypothesis distribution are legitimate exchanges under H0</strong>. To state this differently, each randomly re-labeled dataset should be one that <strong>could</strong> have existed had the experiment gone differently, but didn’t.</p>
+<p>The functions in <strong><code>{exchangr}</code></strong> are there to help you meet this assumption, but they should not be used without understanding exactly what they do.</p>
+</div>
+</div>
+<div class="cell">
+
+</div>
+<p>Let’s see how easy it is to go wrong when exchanging labels on multilevel data. We decide that we want to randomly re-label adults and children in order to test the effect of <code>group</code> and/or the <code>group-by-crit</code> interaction. Run the <code>count()</code> function on the original data in <code>pog_subj</code> to see what is what.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>pog_subj <span class="sc">%&gt;%</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(sub_id, group)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 83 × 3
+   sub_id group     n
+   &lt;fct&gt;  &lt;fct&gt; &lt;int&gt;
+ 1 1      adult    62
+ 2 2      adult    62
+ 3 3      adult    62
+ 4 4      adult    62
+ 5 5      adult    62
+ 6 6      adult    62
+ 7 7      adult    62
+ 8 8      adult    62
+ 9 9      adult    62
+10 10     adult    62
+# … with 73 more rows</code></pre>
+</div>
+</div>
+<p>Each subject was either an adult or a child, and has 62 observations. Now let’s imagine we applied <code>shuffle()</code> without thinking, as an attempt to reattach the labels across subjects</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">62</span>) <span class="co"># so you get the same random result as me</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>pog_shuffled_bad <span class="ot">&lt;-</span> pog_subj <span class="sc">%&gt;%</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">shuffle</span>(group)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>pog_shuffled_bad</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5,146 × 5
+   sub_id group crit          ms     p
+   &lt;fct&gt;  &lt;fct&gt; &lt;fct&gt;      &lt;int&gt; &lt;dbl&gt;
+ 1 1      adult competitor  -200 0.2  
+ 2 1      child competitor  -183 0.333
+ 3 1      adult competitor  -166 0.467
+ 4 1      adult competitor  -150 0.5  
+ 5 1      child competitor  -133 0.467
+ 6 1      child competitor  -116 0.367
+ 7 1      adult competitor  -100 0.3  
+ 8 1      child competitor   -83 0.367
+ 9 1      adult competitor   -66 0.4  
+10 1      child competitor   -50 0.4  
+# … with 5,136 more rows</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>pog_shuffled_bad <span class="sc">%&gt;%</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(sub_id, group)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 166 × 3
+   sub_id group     n
+   &lt;fct&gt;  &lt;fct&gt; &lt;int&gt;
+ 1 1      adult    33
+ 2 1      child    29
+ 3 2      adult    37
+ 4 2      child    25
+ 5 3      adult    28
+ 6 3      child    34
+ 7 4      adult    21
+ 8 4      child    41
+ 9 5      adult    38
+10 5      child    24
+# … with 156 more rows</code></pre>
+</div>
+</div>
+<p>So now we can see the problem: in our re-labeled group, subject 1 is both adult and child! We have violated the exchangeability of the labels under the null hypothesis, creating an impossible dataset, and turning a between-subject factor into a within-subject factor. Any null-hypothesis distribution created from this manner of shuffling will be garbage.</p>
+<p>What we need to do is to “nest” the 62 observations into a <code>list-column</code> before we do the shuffling, using the <code>nest()</code> function from <strong><code>{tidyr}</code></strong>. Once we’ve done this, then we can run the shuffle function, and then unnest the data back into it’s original form.</p>
+<section id="activity-build-a-nest" class="level3" data-number="5.2.1">
+<h3 data-number="5.2.1" class="anchored" data-anchor-id="activity-build-a-nest"><span class="header-section-number">5.2.1</span> Activity: Build a <code>nest()</code></h3>
+<p>Let’s try using the <code>nest()</code> function to create the data below from <code>pog_subj</code>. For guidance, look at the examples in the documentation (type <code>?nest</code> in the console). Save the result as <code>pog_nest</code>. Then try to <code>unnest()</code> the data.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 83 × 3
+   sub_id group data             
+   &lt;fct&gt;  &lt;fct&gt; &lt;list&gt;           
+ 1 1      adult &lt;tibble [62 × 3]&gt;
+ 2 2      adult &lt;tibble [62 × 3]&gt;
+ 3 3      adult &lt;tibble [62 × 3]&gt;
+ 4 4      adult &lt;tibble [62 × 3]&gt;
+ 5 5      adult &lt;tibble [62 × 3]&gt;
+ 6 6      adult &lt;tibble [62 × 3]&gt;
+ 7 7      adult &lt;tibble [62 × 3]&gt;
+ 8 8      adult &lt;tibble [62 × 3]&gt;
+ 9 9      adult &lt;tibble [62 × 3]&gt;
+10 10     adult &lt;tibble [62 × 3]&gt;
+# … with 73 more rows</code></pre>
+</div>
+</div>
+<div class="callout-important callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>pog_nest <span class="ot">&lt;-</span> pog_subj <span class="sc">%&gt;%</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nest</span>(<span class="at">data =</span> <span class="fu">c</span>(<span class="sc">-</span>sub_id, <span class="sc">-</span>group))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="do">## back to its original format</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>pog_nest <span class="sc">%&gt;%</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(<span class="at">cols =</span> <span class="fu">c</span>(data))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5,146 × 5
+   sub_id group crit          ms     p
+   &lt;fct&gt;  &lt;fct&gt; &lt;fct&gt;      &lt;int&gt; &lt;dbl&gt;
+ 1 1      adult competitor  -200 0.2  
+ 2 1      adult competitor  -183 0.333
+ 3 1      adult competitor  -166 0.467
+ 4 1      adult competitor  -150 0.5  
+ 5 1      adult competitor  -133 0.467
+ 6 1      adult competitor  -116 0.367
+ 7 1      adult competitor  -100 0.3  
+ 8 1      adult competitor   -83 0.367
+ 9 1      adult competitor   -66 0.4  
+10 1      adult competitor   -50 0.4  
+# … with 5,136 more rows</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p>OK, now that we’ve figured out how to nest data, we can apply <code>shuffle()</code> to the nested data and then unnest. We’ll write a function to do this called <code>shuffle_ml()</code>. This will work with all the <strong><code>{clusterperm}</code></strong> functions as long as we name the first argument <code>.data</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>shuffle_ml <span class="ot">&lt;-</span> <span class="cf">function</span>(.data) {</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  .data <span class="sc">%&gt;%</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">nest</span>(<span class="at">data =</span> <span class="fu">c</span>(<span class="sc">-</span>sub_id, <span class="sc">-</span>group)) <span class="sc">%&gt;%</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">shuffle</span>(group) <span class="sc">%&gt;%</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">unnest</span>(data)</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Let’s try it out and verify that it works as intended.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>pog_subj <span class="sc">%&gt;%</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">shuffle_ml</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(sub_id, group)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 83 × 3
+   sub_id group     n
+   &lt;fct&gt;  &lt;fct&gt; &lt;int&gt;
+ 1 1      adult    62
+ 2 2      child    62
+ 3 3      adult    62
+ 4 4      adult    62
+ 5 5      child    62
+ 6 6      adult    62
+ 7 7      adult    62
+ 8 8      adult    62
+ 9 9      adult    62
+10 10     adult    62
+# … with 73 more rows</code></pre>
+</div>
+</div>
+<p>Looks good! Now we are ready to use <code>shuffle_ml()</code> to build our NHD (null-hypothesis distribution). Note that because we are only shuffling <code>group</code>, we can only use the NHD for tests of <code>group</code> and <code>group-by-crit</code>. If we also want to run a test of the main effect of <code>crit</code>, we would have to shuffle <code>crit</code> (and because it’s a mixed design, you’d have to “synchronize” the shuffling over the levels of group, for which <code>shuffle_each_sync()</code> has been provided).</p>
+<p>We’ll use <code>cluster_nhds()</code> to get our null hypothesis distribution from 1000 monte carlo runs, and then the <code>pvalues()</code> function to derive p-values for our original clusters.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="do">## make sure we're not using an old version</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">packageVersion</span>(<span class="st">"clusterperm"</span>) <span class="sc">&gt;</span> <span class="st">"0.1.0"</span>)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="do">## warning: can take many minutes!!</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">62</span>) <span class="co"># for reproducibility</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>nhds <span class="ot">&lt;-</span> <span class="fu">cluster_nhds</span>(<span class="dv">1000</span>, pog_subj, ms,</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>                     p <span class="sc">~</span> group <span class="sc">*</span> crit <span class="sc">+</span> <span class="fu">Error</span>(sub_id <span class="sc">/</span> crit),</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>                     shuffle_ml)</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>cp_result <span class="ot">&lt;-</span> <span class="fu">pvalues</span>(clusters <span class="sc">%&gt;%</span> <span class="fu">filter</span>(effect <span class="sc">!=</span> <span class="st">"crit"</span>), </span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>                     nhds <span class="sc">%&gt;%</span> <span class="fu">filter</span>(effect <span class="sc">!=</span> <span class="st">"crit"</span>))</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(cp_result, </span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>        <span class="at">file =</span> <span class="st">"data-derived/cluster-permutation-result.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now let’s print out the results.</p>
+<div class="cell">
+
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>cp_result</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 6
+  effect        b0    b1  sign   cms        p
+  &lt;chr&gt;      &lt;int&gt; &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;
+1 group        150   300    -1 169.  0.000999
+2 group:crit    33    66     1  21.5 0.127   </code></pre>
+</div>
+</div>
+<p>We have a clear main effect of <code>group</code> extending from 150-300 ms, which is where on the figure we can see the adults have a higher probability of looking at either picture than the children (p &lt; .001). There was a group-by-competition interaction detected on the original data from 33-66 ms, but it was not statistically significant (p = 0.127).</p>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography" style="display: none">
+<div id="ref-bullmore1999" class="csl-entry" role="doc-biblioentry">
+Bullmore, Edward T, John Suckling, Stephan Overmeyer, Sophia Rabe-Hesketh, Eric Taylor, and Michael J Brammer. 1999. <span>“Global, Voxel, and Cluster Tests, by Theory and Permutation, for a Difference Between Two Groups of Structural MR Images of the Brain.”</span> <em>IEEE Transactions on Medical Imaging</em> 18: 32–42.
+</div>
+<div id="ref-maris2007" class="csl-entry" role="doc-biblioentry">
+Maris, Eric, and Robert Oostenveld. 2007. <span>“Nonparametric Statistical Testing of EEG-and MEG-Data.”</span> <em>Journal of Neuroscience Methods</em> 164: 177–90.
+</div>
+<div id="ref-sassenhagen2019" class="csl-entry" role="doc-biblioentry">
+Sassenhagen, Jona, and Dejan Draschkow. 2019. <span>“Cluster-Based Permutation Tests of MEG/EEG Data Do Not Establish Significance of Effect Latency or Location.”</span> <em>Psychophysiology</em> 56: e13335.
+</div>
+</div>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./polynomial.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Polynomial regression</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./references.html" class="pagination-link">
+        <span class="nav-page-text">References</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+      <div class="nav-footer-center">Copyright 2022, Dale J. Barr. Content licensed under Creative Commons CC-BY-SA.</div>
+  </div>
+</footer>
+
+
+
+</body></html>

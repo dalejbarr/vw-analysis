@@ -1,0 +1,243 @@
+# Cluster-permutation analysis
+
+Cluster-permutation analysis was first developed for statistical problems in fMRI [@bullmore1999] and EEG/MEG research [@maris2007]. It developed as a means of controlling the false positive rates for numerous tests across electrode, voxel, and time, without incurring the catastrophic hit to power that would occur using conventional (Bonferroni-type) correction methods. Usually you would use this approach when you more are interested in **when** an effect arises than in the overall shape of effects across an analysis window. However, I would be remiss not to mention a recent article which takes a critical view on its ability to establish the locus of effects in time [@sassenhagen2019]. But it is still useful for establishing a time range around which 'something is happening' even if it doesn't allow us to express uncertainty around the boundaries of that time range (which would be even more useful).
+
+## Our task
+
+What we are going to do is run a cluster-permutation analysis on the data below, to see when the group-by-competition interaction is likely to be reliable.
+
+![](img/existing-competition.png)
+
+For the analysis, we'll need two development packages (only available on github): **`{exchangr}`** and **`{clusterperm}`**. The former does exchangeable permutations, and the latter more specifically for this kind of analysis.
+
+We're going to use the data `pog_subj` that we created in the last chapter and saved in the `data-derived/` subdirectory. We're going to be performing ANOVAs on the data using `aov()`, so we'll need to define our independent variables as factors.
+
+```{r}
+#| message: false
+library("tidyverse")
+library("exchangr") # remotes::install_github("dalejbarr/exchangr")
+library("clusterperm") # remotes::install_github("dalejbarr/clustperm")
+
+pog_subj <- read_rds("data-derived/pog_subj.rds") %>%
+  filter(role == "critical",
+         between(ms, -200, 300)) %>%
+  select(-role, -Y, -N) %>%
+  mutate(group = factor(group),
+         crit = factor(crit),
+         sub_id = factor(sub_id))
+```
+
+```{r}
+#| label: hidden-count-frames
+#| echo: false
+.all_frames <- pog_subj %>%
+  distinct(ms) %>%
+  pull()
+```
+
+Let's take a moment to understand the `aov()` function from base R. Imagine that instead of having multiple frames, we wanted to run an ANOVA on a single time point, say at 150 ms. We have a mixed design (group = between-subjects; crit = within-subjects), so the way we would do it is as shown below.
+
+```{r}
+pog_150 <- pog_subj %>%
+  filter(ms == 150L) %>%
+  select(-ms)
+
+mod_aov <- aov(p ~ group * crit + Error(sub_id / crit),
+               pog_150)
+
+summary(mod_aov)
+```
+
+### Activity: `aov_by_bin()`
+
+The `aov_by_bin()` function from **`{clusterperm}`** will run that same ANOVA at every bin in the dataset. Try it, plugging in the same formula from above. Save the result as `orig_result`.
+
+:::{.callout-important collapse="true"}
+#### Solution
+
+```{r}
+orig_result <- aov_by_bin(pog_subj, ms,
+                          p ~ group * crit + Error(sub_id / crit))
+
+orig_result
+```
+:::
+
+The function `aov_by_bin()` returns the variable `stat`, which is a signed `F` statistic, and is positive or negative depending on the direction of the effect. It also returns `p`, which is the p-value for the effect at the corresponding bin.
+
+A 'cluster' is defined as a set of temporally-adjacent bins where all of the test statistics have the same signs, and the p-values are all less than alpha (where alpha is the false positive level, usually .05). We look for these temporally adjacent bins for each main effect or interaction.
+
+In this case we have two main effects (`group` and `crit`) and one interaction (`group:crit`), and we can detect clusters for each one of these. 
+
+### Activity: Detect clusters
+
+The **`{clusterperm}`** package provides a function to do this, `detect_clusters_by_effect()`, which is fed the output of `aov_by_bin()`. Try applying this function to `orig_result`, and save the result as `clusters`.
+
+:::{.callout-important collapse="true"}
+#### Solution
+
+```{r}
+clusters <- orig_result %>%
+  detect_clusters_by_effect(effect, ms, stat, p)
+
+clusters
+```
+
+`b0` and `b1` tell you the start and end frames for each cluster; `sign` gives you the direction of the effect, and `cms` gives you the "cluster mass statistic", which is the summed test statistics for the entire cluster.
+
+:::
+
+## Deriving null-hypothesis distributions through resampling
+
+A permutation test has proceeds according to the following steps:
+
+1. perform an analysis on the original data and store the resulting test statistic;
+2. generate a null-hypothesis distribution for the test statistic by randomly permuting labels, re-running the analysis, and storing the test statistic many times;
+3. compare the original test statistic to the distribution of statistics you generated in step 2 to determine how unlikely your original test statistic is under the null hypothesis.
+
+:::{.callout-warning}
+
+The logic of permutation tests is appealing, but you can really get into trouble very easily trying to apply it to multilevel data. There is a critical assumption that you need to ensure is honored, which is that **all exchanges you make when generating the null-hypothesis distribution are legitimate exchanges under H0**. To state this differently, each randomly re-labeled dataset should be one that **could** have existed had the experiment gone differently, but didn't.
+
+The functions in **`{exchangr}`** are there to help you meet this assumption, but they should not be used without understanding exactly what they do.
+
+:::
+
+```{r}
+#| label: howmany-hidden
+#| echo: false
+.how_many <- pog_subj %>%
+  count(sub_id, group) %>%
+  pull(n) %>%
+  unique()
+```
+
+Let's see how easy it is to go wrong when exchanging labels on multilevel data. We decide that we want to randomly re-label adults and children in order to test the effect of `group` and/or the `group-by-crit` interaction. Run the `count()` function on the original data in `pog_subj` to see what is what.
+
+```{r}
+pog_subj %>%
+  count(sub_id, group)
+```
+
+Each subject was either an adult or a child, and has `r .how_many` observations. Now let's imagine we applied `shuffle()` without thinking, as an attempt to reattach the labels across subjects
+
+```{r}
+set.seed(62) # so you get the same random result as me
+
+pog_shuffled_bad <- pog_subj %>%
+  shuffle(group)
+
+pog_shuffled_bad
+
+pog_shuffled_bad %>%
+  count(sub_id, group)
+```
+
+So now we can see the problem: in our re-labeled group, subject 1 is both adult and child! We have violated the exchangeability of the labels under the null hypothesis, creating an impossible dataset, and turning a between-subject factor into a within-subject factor. Any null-hypothesis distribution created from this manner of shuffling will be garbage.
+
+What we need to do is to "nest" the `r .how_many` observations into a `list-column` before we do the shuffling, using the `nest()` function from **`{tidyr}`**. Once we've done this, then we can run the shuffle function, and then unnest the data back into it's original form.
+
+### Activity: Build a `nest()`
+
+Let's try using the `nest()` function to create the data below from `pog_subj`. For guidance, look at the examples in the documentation (type `?nest` in the console). Save the result as `pog_nest`. Then try to `unnest()` the data.
+
+```{r}
+#| label: build-a-nest-result
+#| echo: false
+pog_nest <- pog_subj %>%
+  nest(data = c(-sub_id, -group))
+
+pog_nest
+```
+
+:::{.callout-important collapse="true"}
+#### Solution
+
+```{r}
+#| label: build-a-nest
+#| eval: false
+pog_nest <- pog_subj %>%
+  nest(data = c(-sub_id, -group))
+```
+
+```{r}
+## back to its original format
+pog_nest %>%
+  unnest(cols = c(data))
+```
+
+:::
+
+OK, now that we've figured out how to nest data, we can apply `shuffle()` to the nested data and then unnest. We'll write a function to do this called `shuffle_ml()`. This will work with all the **`{clusterperm}`** functions as long as we name the first argument `.data`.
+
+```{r}
+shuffle_ml <- function(.data) {
+  .data %>%
+    nest(data = c(-sub_id, -group)) %>%
+    shuffle(group) %>%
+    unnest(data)
+}
+```
+
+Let's try it out and verify that it works as intended.
+
+```{r}
+pog_subj %>%
+  shuffle_ml() %>%
+  count(sub_id, group)
+```
+
+Looks good! Now we are ready to use `shuffle_ml()` to build our NHD (null-hypothesis distribution). Note that because we are only shuffling `group`, we can only use the NHD for tests of `group` and `group-by-crit`. If we also want to run a test of the main effect of `crit`, we would have to shuffle `crit` (and because it's a mixed design, you'd have to "synchronize" the shuffling over the levels of group, for which `shuffle_each_sync()` has been provided).
+
+We'll use `cluster_nhds()` to get our null hypothesis distribution from 1000 monte carlo runs, and then the `pvalues()` function to derive p-values for our original clusters.
+
+```{r}
+#| label: cluster-pvalues
+#| eval: false
+## make sure we're not using an old version
+stopifnot(packageVersion("clusterperm") > "0.1.0")
+
+## warning: can take many minutes!!
+set.seed(62) # for reproducibility
+nhds <- cluster_nhds(1000, pog_subj, ms,
+                     p ~ group * crit + Error(sub_id / crit),
+                     shuffle_ml)
+
+cp_result <- pvalues(clusters %>% filter(effect != "crit"), 
+                     nhds %>% filter(effect != "crit"))
+
+saveRDS(cp_result, 
+        file = "data-derived/cluster-permutation-result.rds")
+```
+
+Now let's print out the results.
+
+```{r}
+#| label: hidden-pvalues
+#| echo: false
+.pstring <- function(p) {
+  if (round(p, 3) > .999) {
+    "p > .999"
+  } else if (round(p < .001, 3)) {
+    "p < .001"
+  } else {
+    sprintf("p = %0.3f", p)
+  }
+}
+
+cp_result <- read_rds("data-derived/cluster-permutation-result.rds")
+.p_group <- .pstring(cp_result %>% filter(effect == "group") %>%
+                       pull(p))
+.p_interact <- .pstring(cp_result %>% 
+                          filter(effect == "group:crit") %>%
+                          pull(p))
+
+```
+
+
+```{r}
+cp_result
+```
+
+
+We have a clear main effect of `group` extending from 150-300 ms, which is where on the figure we can see the adults have a higher probability of looking at either picture than the children (`r .p_group`). There was a group-by-competition interaction detected on the original data from 33-66 ms, but it was not statistically significant (`r .p_interact`).

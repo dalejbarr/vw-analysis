@@ -1,10 +1,10 @@
 ## FUNCTIONS
 
 codebook_table <- function(x, descriptions = NULL) {
-  types <- c("integer" = "<int>",
-             "numeric" = "<dbl>",
-             "character" = "<chr>",
-             "factor" = "<fct>")
+  types <- c("integer" = "int",
+             "numeric" = "dbl",
+             "character" = "chr",
+             "factor" = "fct")
   
   dat_cb <- tibble::tibble(variable = names(x),
                    type = types[sapply(x, class)])
